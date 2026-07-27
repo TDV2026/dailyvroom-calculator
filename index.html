@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Import Calculator — The Daily Vroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ===== SPEEDFORM =============================================
+   Palette, type and shape per DESIGN_SYSTEM.md.
+   Class names unchanged - existing HTML and JS work as-is.
+   ============================================================= */
+:root{
+  --paper:#FAFAF8;
+  --surface:#FFFFFF;
+  --ink:#111111;
+  --text:#3A3A3A;
+  --muted:#55595E;
+  --ghost:#8A8E93;
+  --rule:#D9D9D4;
+  --accent:#E63312;
+  --accent-hi:#C52A0D;
+  --error:#B21E00;
+  --go:#1E7A45;
+  --cut:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:auto;}
+body{background:var(--paper);color:var(--text);font-family:'Inter',sans-serif;font-weight:400;min-height:100vh;overflow-y:auto;height:auto;-webkit-font-smoothing:antialiased;}
+
+/* ---------- masthead ---------- */
+.mast{background:var(--ink);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.mast-name{font-family:'Archivo',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:#fff;}
+.mast-name em{font-style:normal;color:var(--accent);}
+.mast-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.28);padding:4px 10px;}
+.mast-tariff{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);}
+
+/* ---------- hero ---------- */
+.hero{max-width:680px;margin:0 auto;padding:56px 24px 40px;text-align:center;}
+.hero-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+.hero h1{font-family:'Archivo',sans-serif;font-size:clamp(30px,5vw,50px);font-weight:900;line-height:1.02;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:16px;color:var(--ink);}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero-sub{font-size:15px;line-height:1.65;color:var(--text);max-width:460px;margin:0 auto;}
+
+/* ---------- tabs ---------- */
+.nav-tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);max-width:680px;margin:0 auto;padding:0 24px;}
+.nav-tab{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:13px 20px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color 0.15s;text-decoration:none;display:inline-block;}
+.nav-tab:hover{color:var(--ink);}
+.nav-tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+.hrule{max-width:680px;margin:0 auto;height:1px;background:var(--rule);}
+.wrap{max-width:680px;margin:0 auto;padding:0 24px 600px;}
+
+/* ---------- form ---------- */
+.form-section{padding:32px 0 0;}
+.form-label{font-family:'Archivo',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.form-label::after{content:'';flex:1;height:2px;background:var(--ink);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.mt{margin-top:12px;}
+.fi{display:flex;flex-direction:column;gap:6px;}
+.fi label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+.fi select,.fi input{background:var(--surface);border:2px solid var(--ink);border-radius:0;color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;font-weight:400;padding:11px 12px;min-height:44px;outline:none;width:100%;-webkit-appearance:none;appearance:none;transition:border-color 0.15s;}
+.fi select:focus,.fi input:focus{border-color:var(--accent);}
+.fi input::placeholder{color:var(--ghost);}
+.fi-hint{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.prw{position:relative;}
+.prs{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);pointer-events:none;white-space:nowrap;}
+.prw input{padding-left:36px!important;}
+.errtxt{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--error);padding:10px 12px;background:rgba(178,30,0,0.07);border-left:3px solid var(--error);margin-top:8px;}
+
+/* ---------- primary button ---------- */
+.calc-btn{width:100%;margin-top:20px;min-height:48px;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:0;font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;clip-path:var(--cut);}
+.calc-btn:hover{background:var(--accent-hi);}
+
+/* ---------- loading ---------- */
+.ldw{padding:56px 0;text-align:center;}
+.ldlbl{font-family:'Archivo',sans-serif;font-size:16px;font-weight:800;font-style:normal;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink);}
+.ldbar{width:140px;height:2px;background:var(--rule);margin:18px auto 0;position:relative;overflow:hidden;}
+.ldbar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:3px;background:var(--accent);animation:ldsweep 1.6s ease-in-out infinite;}
+@keyframes ldsweep{0%{left:-100%}100%{left:100%}}
+
+/* ---------- results ---------- */
+.res-route{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:32px 0 6px;}
+.res-title{font-family:'Archivo',sans-serif;font-size:clamp(16px,2vw,20px);font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:var(--ink);padding-bottom:18px;border-bottom:2px solid var(--ink);}
+.crow{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0 12px 12px;border-bottom:1px solid var(--rule);border-left:3px solid var(--accent);gap:16px;}
+.clbl{font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--text);flex:1;line-height:1.35;}
+.csub{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.cval{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap;}
+.savrow{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0 12px 12px;border-bottom:1px solid var(--rule);border-left:3px solid var(--go);gap:16px;}
+.savrow .clbl{font-size:15px;color:var(--go);flex:1;}
+.savrow .cval{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:15px;font-variant-numeric:tabular-nums;color:var(--go);white-space:nowrap;}
+
+/* ---------- total (ink band) ---------- */
+.totrow{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:var(--ink);margin-top:12px;gap:16px;clip-path:var(--cut);}
+.tot-lbl{font-family:'Archivo',sans-serif;font-size:13px;font-weight:800;font-style:normal;letter-spacing:0.08em;text-transform:uppercase;color:#fff;}
+.tot-val{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px;font-variant-numeric:tabular-nums;color:var(--accent);}
+
+/* ---------- state tax ---------- */
+.stax-wrap{border-top:1px solid var(--rule);padding:20px 0;}
+.stax-label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:12px;}
+.stax-sel{width:100%;background:var(--surface);border:2px solid var(--ink);border-radius:0;font-family:'Inter',sans-serif;font-size:16px;padding:11px 12px;min-height:44px;color:var(--ink);outline:none;-webkit-appearance:none;appearance:none;}
+.stax-sel:focus{border-color:var(--accent);}
+.srow{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;gap:12px;color:var(--text);}
+.sval{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap;}
+.sval em{font-style:normal;font-size:11px;color:var(--muted);margin-left:4px;}
+.stot{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 4px;font-size:14px;gap:12px;}
+.stot span:first-child{font-family:'Archivo',sans-serif;font-weight:800;font-style:normal;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink);}
+.stot-val{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;font-variant-numeric:tabular-nums;color:var(--accent);}
+
+/* ---------- the take ---------- */
+.take-wrap{border-top:2px solid var(--ink);margin-top:20px;padding-top:24px;}
+.take-kicker{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:16px;}
+.sig-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.sig{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:0;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;border-width:2px;border-style:solid;}
+.sig.exceptional{background:rgba(30,122,69,0.12);color:#145C34;border-color:rgba(30,122,69,0.4);}
+.sig.green{background:rgba(30,122,69,0.12);color:#145C34;border-color:rgba(30,122,69,0.4);}
+.sig.good{background:rgba(100,180,130,0.1);color:#1E6640;border-color:rgba(100,180,130,0.35);}
+.sig.amber{background:rgba(200,160,40,0.12);color:#7A5C00;border-color:rgba(200,160,40,0.4);}
+.sig.caution{background:rgba(200,100,30,0.12);color:#7A3500;border-color:rgba(200,100,30,0.4);}
+.sig.red{background:rgba(196,50,50,0.12);color:#8A0000;border-color:rgba(196,50,50,0.4);}
+.sig.avoid{background:rgba(196,50,50,0.12);color:#8A0000;border-color:rgba(196,50,50,0.4);}
+.sigdot{width:6px;height:6px;background:currentColor;display:inline-block;}
+.storybadge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:0;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:rgba(200,160,40,0.12);color:#7A5C00;border:2px solid rgba(200,160,40,0.4);}
+.storybadge svg{width:11px;height:11px;}
+.verdict{font-family:'Inter',sans-serif;font-size:15px;font-weight:400;line-height:1.7;color:var(--text);text-transform:none;}
+.verdict p{margin-bottom:12px;}
+.verdict p:last-child{margin-bottom:0;}
+
+/* ---------- intent ---------- */
+.intent-wrap{padding:20px 0 24px;border-top:1px solid var(--rule);}
+.intent-q{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.intent-btns{display:flex;gap:10px;}
+.intent-btn{background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:9px 18px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.intent-btn:hover{background:var(--ink);color:#fff;}
+.intent-btn-soft{border-color:var(--rule);color:var(--muted);}
+.intent-btn-soft:hover{background:none;border-color:var(--muted);color:var(--ink);}
+.intent-confirm{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--go);padding-top:10px;}
+.btnr{background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:9px 16px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;margin-top:16px;transition:all 0.15s;}
+.btnr:hover{background:var(--ink);color:#fff;}
+
+/* ---------- footer ---------- */
+.pgft{max-width:680px;margin:0 auto;padding:16px 24px 32px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;}
+.pgft p{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.pgft a{color:var(--muted);text-decoration:none;}
+.pgft a:hover{color:var(--accent);}
+
+/* ---------- delta / context ---------- */
+.delta-line{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0 16px;border-bottom:1px solid var(--rule);gap:16px;}
+.delta-lbl{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+.delta-val{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink);}
+.context-line{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);padding:12px 0 0;line-height:1.65;}
+.context-line span{color:#7A5C00;}
+
+/* ---------- secondary buttons ---------- */
+.breakdown-toggle{background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:10px 14px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;width:100%;margin:16px 0 0;transition:all 0.15s;}
+.breakdown-toggle:hover{background:var(--ink);color:#fff;}
+.share-btn{background:none;border:2px solid var(--accent);border-radius:0;color:var(--accent);padding:10px 16px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.share-btn:hover{background:var(--accent);color:#fff;}
+.share-confirm{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--go);opacity:0;transition:opacity 0.3s;}
+.share-confirm.show{opacity:1;}
+
+/* ---------- subscribe ---------- */
+.sub-wrap{border-top:2px solid var(--ink);border-bottom:1px solid var(--rule);margin:28px 0;padding:24px 0;}
+.sub-inner{display:flex;gap:24px;align-items:flex-start;}
+.sub-left{flex:1;}
+.sub-text{font-size:15px;line-height:1.65;color:var(--text);}
+.sub-right{display:flex;flex-direction:column;gap:8px;min-width:220px;}
+.sub-input{background:var(--surface);border:2px solid var(--ink);border-radius:0;color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;padding:11px 12px;min-height:44px;outline:none;width:100%;}
+.sub-input:focus{border-color:var(--accent);}
+.sub-input::placeholder{color:var(--ghost);}
+.sub-btn{background:var(--accent);color:#fff;border:none;border-radius:0;font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:13px;min-height:48px;cursor:pointer;width:100%;clip-path:var(--cut);transition:background 0.15s;}
+.sub-btn:hover{background:var(--accent-hi);}
+.sub-confirm{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--go);min-height:16px;}
+
+/* ---------- share sheet ---------- */
+.share-sheet{display:none;width:100%;margin-top:12px;padding-top:12px;border-top:1px solid var(--rule);}
+.share-sheet-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.share-link-input{flex:1;background:var(--surface);border:2px solid var(--ink);border-radius:0;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:12px;padding:10px;min-height:44px;outline:none;}
+.share-copy-btn{background:none;border:2px solid var(--accent);border-radius:0;color:var(--accent);padding:10px 12px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.share-copy-btn:hover{background:var(--accent);color:#fff;}
+.share-channels{display:flex;gap:8px;}
+.share-channel-btn{flex:1;background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:10px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.share-channel-btn:hover{background:var(--ink);color:#fff;}
+
+/* ---------- credit ---------- */
+.built-by{text-align:center;padding:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ghost);}
+.built-by a{color:var(--muted);text-decoration:none;}
+.built-by a:hover{color:var(--accent);}
+
+/* ---------- mobile ---------- */
+@media(max-width:560px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .mast{padding:14px 16px;}
+  .mast-tag{display:none;}
+  .wrap,.pgft{padding-left:16px;padding-right:16px;}
+  .hero{padding:36px 16px 30px;}
+  .hero h1{font-size:30px;}
+  .nav-tabs{padding:0 16px;}
+  .nav-tab{padding:13px 14px;font-size:10px;letter-spacing:0.05em;}
+  .crow,.savrow{flex-wrap:wrap;gap:4px;}
+  .cval{white-space:normal;text-align:right;width:100%;}
+  .savrow .cval{width:100%;text-align:right;}
+  .totrow{flex-wrap:wrap;gap:6px;}
+  .tot-lbl{width:100%;}
+  .tot-val{font-size:28px;}
+  .pgft{flex-direction:column;gap:6px;}
+  .stot{flex-wrap:wrap;}
+  .srow{flex-wrap:wrap;gap:4px;}
+  .sval{width:100%;text-align:right;}
+  .sub-inner{flex-direction:column;}
+  .sub-right{min-width:0;width:100%;}
+  .share-channels{flex-wrap:wrap;}
+}
+</style>
+</head>
+<body>
+<header class="mast">
+  <div class="mast-name">The Daily <em>Vroom</em></div>
+  <div class="mast-tag">Import Calculator Beta</div>
+  <div class="mast-tariff" id="tariffDate">Tariff rates: May 2026</div>
+</header>
+<nav class="nav-tabs">
+  <span class="nav-tab active">Import Calculator</span>
+  <a href="/shipping.html" class="nav-tab">Domestic Shipping</a>
+</nav>
+<section class="hero">
+  <div class="hero-label">Know Before You Buy</div>
+  <h1>What does that car <em>actually</em> cost you?</h1>
+  <p class="hero-sub">We calculate the real number. Duties, freight, compliance and fees using live exchange rates and current tariff rules.</p>
+</section>
+<div class="hrule"></div>
+<div class="wrap">
+  <div id="formPanel">
+    <div class="form-section">
+      <div class="form-label">The Route</div>
+      <div class="g2">
+        <div class="fi"><label>Buying From</label>
+          <select id="origin" onchange="updateCurrency();checkSameCountry();">
+            <option value="">Select country</option>
+            <option value="JP">Japan</option>
+            <option value="UK">United Kingdom</option>
+            <option value="DE">Germany</option>
+            <option value="IT">Italy</option>
+            <option value="FR">France</option>
+            <option value="BE">Belgium</option>
+            <option value="US">United States</option>
+            <option value="AU">Australia</option>
+            <option value="CA">Canada</option>
+            <option value="NL">Netherlands</option>
+            <option value="PT">Portugal</option>
+            <option value="SE">Sweden</option>
+            <option value="IE">Ireland</option>
+            <option value="CH">Switzerland</option>
+            <option value="ZA">South Africa</option>
+            <option value="AE">UAE / Dubai</option>
+          </select>
+        </div>
+        <div class="fi"><label>Importing To</label>
+          <select id="dest" onchange="checkSameCountry()">
+            <option value="">Select country</option>
+            <option value="US">United States</option>
+            <option value="UK">United Kingdom</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+            <option value="IT">Italy</option>
+            <option value="BE">Belgium</option>
+            <option value="AU">Australia</option>
+            <option value="CA">Canada</option>
+            <option value="NL">Netherlands</option>
+            <option value="PT">Portugal</option>
+            <option value="IE">Ireland</option>
+            <option value="JP">Japan</option>
+            <option value="SE">Sweden</option>
+            <option value="CH">Switzerland</option>
+            <option value="ZA">South Africa</option>
+            <option value="AE">UAE / Dubai</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-label">The Car</div>
+      <div class="g3">
+        <div class="fi"><label>Year</label>
+          <select id="year"><option value="">Select year</option><option value="2026">2026</option><option value="2025">2025</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option><option value="2021">2021</option><option value="2020">2020</option><option value="2019">2019</option><option value="2018">2018</option><option value="2017">2017</option><option value="2016">2016</option><option value="2015">2015</option><option value="2014">2014</option><option value="2013">2013</option><option value="2012">2012</option><option value="2011">2011</option><option value="2010">2010</option><option value="2009">2009</option><option value="2008">2008</option><option value="2007">2007</option><option value="2006">2006</option><option value="2005">2005</option><option value="2004">2004</option><option value="2003">2003</option><option value="2002">2002</option><option value="2001">2001</option><option value="2000">2000</option><option value="1999">1999</option><option value="1998">1998</option><option value="1997">1997</option><option value="1996">1996</option><option value="1995">1995</option><option value="1994">1994</option><option value="1993">1993</option><option value="1992">1992</option><option value="1991">1991</option><option value="1990">1990</option><option value="1989">1989</option><option value="1988">1988</option><option value="1987">1987</option><option value="1986">1986</option><option value="1985">1985</option><option value="1984">1984</option><option value="1983">1983</option><option value="1982">1982</option><option value="1981">1981</option><option value="1980">1980</option><option value="1979">1979</option><option value="1978">1978</option><option value="1977">1977</option><option value="1976">1976</option><option value="1975">1975</option><option value="1974">1974</option><option value="1973">1973</option><option value="1972">1972</option><option value="1971">1971</option><option value="1970">1970</option><option value="1969">1969</option><option value="1968">1968</option><option value="1967">1967</option><option value="1966">1966</option><option value="1965">1965</option><option value="1964">1964</option><option value="1963">1963</option><option value="1962">1962</option><option value="1961">1961</option><option value="1960">1960</option><option value="1959">1959</option><option value="1958">1958</option><option value="1957">1957</option><option value="1956">1956</option><option value="1955">1955</option><option value="1954">1954</option><option value="1953">1953</option><option value="1952">1952</option><option value="1951">1951</option><option value="1950">1950</option><option value="1949">1949</option><option value="1948">1948</option><option value="1947">1947</option><option value="1946">1946</option><option value="1945">1945</option><option value="1944">1944</option><option value="1943">1943</option><option value="1942">1942</option><option value="1941">1941</option><option value="1940">1940</option><option value="1939">1939</option><option value="1938">1938</option><option value="1937">1937</option><option value="1936">1936</option><option value="1935">1935</option><option value="1934">1934</option><option value="1933">1933</option><option value="1932">1932</option><option value="1931">1931</option><option value="1930">1930</option><option value="1929">1929</option><option value="1928">1928</option><option value="1927">1927</option><option value="1926">1926</option><option value="1925">1925</option><option value="1924">1924</option><option value="1923">1923</option><option value="1922">1922</option><option value="1921">1921</option><option value="1920">1920</option><option value="1919">1919</option><option value="1918">1918</option><option value="1917">1917</option><option value="1916">1916</option><option value="1915">1915</option><option value="1914">1914</option><option value="1913">1913</option><option value="1912">1912</option><option value="1911">1911</option><option value="1910">1910</option><option value="1909">1909</option><option value="1908">1908</option><option value="1907">1907</option><option value="1906">1906</option><option value="1905">1905</option><option value="1904">1904</option><option value="1903">1903</option><option value="1902">1902</option><option value="1901">1901</option><option value="1900">1900</option><option value="1899">1899</option><option value="1898">1898</option><option value="1897">1897</option><option value="1896">1896</option><option value="1895">1895</option><option value="1894">1894</option><option value="1893">1893</option><option value="1892">1892</option><option value="1891">1891</option><option value="1890">1890</option><option value="1889">1889</option><option value="1888">1888</option><option value="1887">1887</option><option value="1886">1886</option><option value="1885">1885</option></select></div>
+        <div class="fi"><label>Make</label><select id="make" onchange="updateModels()"><option value="">Make</option></select></div>
+        <div class="fi" id="modelField"><label>Model</label><select id="model"><option value="">Make first</option></select></div>
+      </div>
+      <div class="fi mt">
+        <label>Purchase Price</label>
+        <div class="prw" style="display:flex;gap:0;">
+          <select id="currOverride" onchange="overrideCurrency()" style="background:#ffffff;border:2px solid #111111;border-right:none;color:#111111;font-family:'IBM Plex Mono',monospace;font-size:13px;padding:11px 8px;min-height:44px;outline:none;-webkit-appearance:none;appearance:none;width:96px;flex-shrink:0;">
+            <option value="GBP">£ GBP</option>
+            <option value="EUR">€ EUR</option>
+            <option value="USD" selected>$ USD</option>
+            <option value="JPY">¥ JPY</option>
+            <option value="AUD">A$ AUD</option>
+            <option value="CAD">C$ CAD</option>
+            <option value="SEK">kr SEK</option>
+            <option value="CHF">Fr CHF</option>
+            <option value="ZAR">R ZAR</option>
+            <option value="AED">Dhs AED</option>
+          </select>
+          <input type="number" id="price" placeholder="35000" min="0" style="background:#ffffff;border:2px solid #111111;color:#111111;font-family:'Inter',sans-serif;font-size:16px;font-weight:400;padding:11px 12px;min-height:44px;outline:none;width:100%;-webkit-appearance:none;appearance:none;">
+        </div>
+        <span class="fi-hint">Currency auto-set from origin — override if listing is in a different currency</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:row;align-items:center;gap:10px;margin-top:12px;">
+  <input type="checkbox" id="isModified" style="width:16px;height:16px;flex-shrink:0;accent-color:#E63312;cursor:pointer;position:relative;z-index:10;">
+  <label for="isModified" style="font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#55595E;cursor:pointer;">This vehicle has been significantly modified</label>
+</div>
+    <div id="errMsg" class="errtxt" style="display:none"></div>
+    <button class="calc-btn" onclick="calculate()">Calculate Total Landed Cost</button>
+  </div>
+  <div id="loadingPanel" style="display:none">
+    <div class="ldw">
+      <div class="ldlbl">Calculating your landed cost&#8230;</div>
+      <div class="ldbar"></div>
+    </div>
+  </div>
+  <div id="resultsPanel" style="display:none">
+    <div class="res-route">Cost Breakdown</div>
+    <div class="res-title" id="resHead"></div>
+    <div id="adjustHint" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#55595E;padding:12px 0 4px;"><strong>Tap any cost to remove it from your total</strong></div>
+    <div id="costTable"></div>
+    <div id="deltaLine" class="delta-line" style="display:none;">
+      <span class="delta-lbl">Total import cost</span>
+      <span class="delta-val" id="deltaVal"></span>
+    </div>
+    <div id="contextLine" class="context-line" style="display:none;"></div>
+    <div id="shareBlock" style="display:none;padding:16px 0 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <span class="share-confirm" id="shareConfirmInline"></span>
+        <button class="share-btn" onclick="handleShare()">Share Breakdown</button>
+      </div>
+      <div class="share-sheet" id="shareSheet">
+        <div class="share-sheet-row">
+          <input class="share-link-input" id="shareLinkInput" type="text" readonly placeholder="Generating link...">
+          <button class="share-copy-btn" onclick="copyShareLink()">Copy</button>
+        </div>
+      </div>
+    </div>
+    <button class="breakdown-toggle" id="breakdownToggle" onclick="toggleBreakdown()" style="display:none;">View full cost breakdown</button>
+    <div id="stateTaxPanel" class="stax-wrap" style="display:none;">
+      <div class="stax-label">At Registration — US State Sales Tax</div>
+      <select id="stateSel" class="stax-sel"><option value="">Select your state to see all-in total</option></select>
+      <div id="stateTaxResult"></div>
+    </div>
+    <div class="take-wrap">
+      <div class="take-kicker">The Daily Vroom Take</div>
+      <div class="sig-row" id="sigTag"></div>
+      <div class="verdict" id="verdictText"></div>
+    </div>
+    <div class="intent-wrap" id="intentWrap" style="display:none;">
+      <div class="intent-q">Seriously considering this import?</div>
+      <div class="intent-btns" id="intentBtns">
+        <button class="intent-btn" onclick="logIntent('yes')">Yes</button>
+        <button class="intent-btn intent-btn-soft" onclick="logIntent('exploring')">Just exploring</button>
+      </div>
+      <div class="intent-confirm" id="intentConfirm" style="display:none;">Got it, helpful to know.</div>
+    </div>
+    <div class="sub-wrap">
+      <div class="sub-inner">
+        <div class="sub-left">
+          <div class="take-kicker" style="margin-bottom:8px;">The Daily Vroom Newsletter</div>
+          <p class="sub-text">The daily read for car people. Market trends, auction results, import intelligence and the deals worth knowing about.</p>
+        </div>
+        <div class="sub-right">
+          <input type="email" id="subEmail" class="sub-input" placeholder="your@email.com">
+          <button class="sub-btn" onclick="subscribeEmail()">Subscribe Free</button>
+          <div class="sub-confirm" id="subConfirm"></div>
+        </div>
+      </div>
+    </div>
+    <button class="btnr" onclick="resetCalc()">New Calculation</button>
+  </div>
+</div>
+<footer class="pgft">
+  <p>&copy; TDV — thedailyvroom.com</p>
+  <p><a href="mailto:news@thedailyvroom.com">Questions? news@thedailyvroom.com</a></p>
+</footer>
+<script>
+const VERCEL_URL=window.location.origin;
+
+async function loadSharedCalc(){
+  const params=new URLSearchParams(window.location.search);
+  const token=params.get('c');
+  if(!token)return;
+  document.getElementById('formPanel').style.display='none';
+  document.getElementById('loadingPanel').style.display='block';
+  try{
+    const r=await fetch(VERCEL_URL+'/api/share?token='+token);
+    if(!r.ok)throw new Error('not found');
+    const d=await r.json();
+    const{inputs,outputs}=d;
+    showSharedHeader(inputs,outputs);
+    renderResults(outputs,inputs.year,inputs.make,inputs.model,inputs.origin,inputs.dest,outputs.dest_currency_symbol);
+  }catch(e){
+    document.getElementById('loadingPanel').style.display='none';
+    document.getElementById('formPanel').style.display='block';
+    document.getElementById('errMsg').textContent='This shared link is invalid or has expired.';
+    document.getElementById('errMsg').style.display='block';
+  }
+}
+
+function showSharedHeader(inputs,outputs){
+  const existing=document.getElementById('sharedHeader');
+  if(existing)existing.remove();
+  const sym=outputs.dest_currency_symbol||'$';
+  const div=document.createElement('div');
+  div.id='sharedHeader';
+  div.style.cssText='background:rgba(230,51,18,0.06);border-left:3px solid #E63312;padding:16px 20px;margin-bottom:8px;';
+  div.innerHTML=`<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:#E63312;margin-bottom:8px;">Shared Calculation</div><div style="font-family:'Archivo',sans-serif;font-size:18px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:#111111;margin-bottom:6px;">${inputs.year} ${inputs.make} ${inputs.model}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#55595E;margin-bottom:10px;">${inputs.origin} \u2192 ${inputs.dest} &nbsp;&middot;&nbsp; Estimated landed cost: ${sym}${Number(outputs.total).toLocaleString()}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A8E93;margin-bottom:12px;">Shared via The Daily Vroom Import Calculator</div><button onclick="resetCalc()" style="background:none;border:2px solid #111111;color:#111111;padding:9px 16px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;">Run your own calculation</button>`;
+  document.querySelector('.wrap').insertBefore(div,document.getElementById('formPanel'));
+}
+
+window.addEventListener('DOMContentLoaded',loadSharedCalc);
+
+const STATE_TAX={'AL':0.02,'AK':0.00,'AZ':0.056,'AR':0.065,'CA':0.0725,'CO':0.029,'CT':0.0635,'DE':0.00,'FL':0.06,'GA':0.04,'HI':0.04,'ID':0.06,'IL':0.0625,'IN':0.07,'IA':0.06,'KS':0.065,'KY':0.06,'LA':0.0445,'ME':0.055,'MD':0.06,'MA':0.0625,'MI':0.06,'MN':0.06875,'MS':0.07,'MO':0.04225,'MT':0.00,'NE':0.055,'NV':0.0685,'NH':0.00,'NJ':0.06625,'NM':0.05125,'NY':0.04,'NC':0.0475,'ND':0.05,'OH':0.0575,'OK':0.045,'OR':0.00,'PA':0.06,'RI':0.07,'SC':0.05,'SD':0.04,'TN':0.07,'TX':0.0625,'UT':0.0485,'VT':0.06,'VA':0.043,'WA':0.065,'WV':0.06,'WI':0.05,'WY':0.04};
+const STATE_NAMES={'AL':'Alabama','AK':'Alaska','AZ':'Arizona','AR':'Arkansas','CA':'California','CO':'Colorado','CT':'Connecticut','DE':'Delaware','FL':'Florida','GA':'Georgia','HI':'Hawaii','ID':'Idaho','IL':'Illinois','IN':'Indiana','IA':'Iowa','KS':'Kansas','KY':'Kentucky','LA':'Louisiana','ME':'Maine','MD':'Maryland','MA':'Massachusetts','MI':'Michigan','MN':'Minnesota','MS':'Mississippi','MO':'Missouri','MT':'Montana','NE':'Nebraska','NV':'Nevada','NH':'New Hampshire','NJ':'New Jersey','NM':'New Mexico','NY':'New York','NC':'North Carolina','ND':'North Dakota','OH':'Ohio','OK':'Oklahoma','OR':'Oregon','PA':'Pennsylvania','RI':'Rhode Island','SC':'South Carolina','SD':'South Dakota','TN':'Tennessee','TX':'Texas','UT':'Utah','VT':'Vermont','VA':'Virginia','WA':'Washington','WV':'West Virginia','WI':'Wisconsin','WY':'Wyoming'};
+const CURRENCY={AE:{s:'Dhs',c:'AED'},JP:{s:'¥',c:'JPY'},UK:{s:'£',c:'GBP'},DE:{s:'€',c:'EUR'},IT:{s:'€',c:'EUR'},FR:{s:'€',c:'EUR'},BE:{s:'€',c:'EUR'},NL:{s:'€',c:'EUR'},PT:{s:'€',c:'EUR'},IE:{s:'€',c:'EUR'},SE:{s:'kr',c:'SEK'},CH:{s:'Fr',c:'CHF'},US:{s:'$',c:'USD'},AU:{s:'A$',c:'AUD'},CA:{s:'C$',c:'CAD'},ZA:{s:'R',c:'ZAR'}};
+const DEST={AE:{s:'Dhs',c:'AED'},US:{s:'$',c:'USD'},UK:{s:'£',c:'GBP'},DE:{s:'€',c:'EUR'},FR:{s:'€',c:'EUR'},IT:{s:'€',c:'EUR'},BE:{s:'€',c:'EUR'},AU:{s:'A$',c:'AUD'},CA:{s:'C$',c:'CAD'},NL:{s:'€',c:'EUR'},PT:{s:'€',c:'EUR'},IE:{s:'€',c:'EUR'},JP:{s:'¥',c:'JPY'},SE:{s:'kr',c:'SEK'},CH:{s:'Fr',c:'CHF'},ZA:{s:'R',c:'ZAR'}};
+const CN={AE:'UAE / Dubai',JP:'Japan',UK:'United Kingdom',DE:'Germany',IT:'Italy',FR:'France',BE:'Belgium',US:'United States',AU:'Australia',CA:'Canada',NL:'Netherlands',PT:'Portugal',IE:'Ireland',SE:'Sweden',CH:'Switzerland',ZA:'South Africa'};
+const CAR_MODELS={
+'Acura':[['NSX NA1',1990,2005],['NSX NC1',2016,2022],['Integra Type R DC5',2001,2006],['RSX Type S',2002,2006],['TL Type S',2007,2008],['TSX',2003,2008],['Legend Coupe',1987,1995]],
+'Alfa Romeo':[['Spider 105',1966,1993],['GTV 105',1963,1977],['GTV6',1980,1987],['Spider 916',1994,2005],['GTV 916',1994,2005],['147 GTA',2002,2010],['156 GTA',2002,2005],['166 2.5 V6',1998,2007],['Brera',2005,2011],['8C Competizione',2007,2010],['4C',2013,2020],['Giulia Quadrifoglio',2016,2026],['Stelvio Quadrifoglio',2017,2026]],
+'Alfa Romeo Pre-War':[['6C 1500',1925,1933],['6C 1750',1927,1933],['6C 2300',1934,1939],['8C 2300',1931,1934],['8C 2900',1935,1939],['P3',1932,1936]],
+'Aston Martin':[['DB4',1958,1963],['DB5',1963,1965],['DB6',1965,1970],['DB7',1994,2004],['DB9',2004,2016],['DB11',2016,2023],['DB12',2023,2026],['DBS',2007,2012],['DBS Superleggera',2018,2023],['Vanquish',2001,2018],['Vantage V8',1977,1989],['Vantage AMR',2017,2023],['Vantage 2024',2024,2026],['DBX707',2022,2026],['Rapide',2010,2020],['One-77',2009,2012],['Valkyrie',2021,2026]],
+'Atlas':[['Motorette',1896,1911]],
+'Auburn':[['851 Speedster',1935,1936],['852 Speedster',1936,1937]],
+'Audi':[['Quattro Coupe',1980,1991],['S2',1990,1995],['RS2 Avant',1994,1995],['S4 B5',1997,2002],['RS4 B5 Avant',1999,2001],['RS4 B7',2005,2008],['RS6 C5',2002,2004],['RS6 C6',2008,2010],['TT 8N',1998,2006],['TT 8J',2006,2014],['TT RS 8J',2009,2014],['R8 V8',2007,2015],['R8 V10',2009,2023],['RS3 8V',2015,2020],['RS3 8Y',2021,2026],['RS5 B8',2010,2017],['RS5 B9',2017,2026],['RS7 C8',2020,2026],['e-tron GT',2021,2026],['Q5 TDI',2008,2026],['A6 TDI',2004,2026],['A4 TDI B6',2000,2005],['A4 TDI B7',2004,2008],['A4 TDI B8',2007,2012],['S6 C7',2012,2018],['Allroad 2.7T',2000,2005]],
+'Austin-Healey':[['100',1953,1956],['100-6',1956,1959],['3000 Mk1',1959,1961],['3000 Mk2',1961,1962],['3000 Mk3',1963,1967],['Sprite Mk1',1958,1961],['Sprite Mk2',1961,1964],['Sprite Mk3',1964,1966],['Sprite Mk4',1966,1971]],
+'Bentley':[['Mulsanne',2010,2020],['Continental GT V8',2011,2026],['Continental GT W12',2003,2026],['Continental GTC V8',2012,2026],['Continental GTC W12',2011,2026],['Flying Spur V8',2013,2026],['Flying Spur W12',2003,2026],['Bentayga W12',2016,2022],['Bentayga V8',2018,2026],['Bentayga EWB',2022,2026],['Mulliner Bacalar',2021,2021],['Batur',2023,2024]],
+'Bentley Pre-War':[['3 Litre',1921,1929],['4.5 Litre',1926,1931],['6.5 Litre',1926,1930],['8 Litre',1930,1931],['Speed Six',1928,1930],['3.5 Litre',1933,1937],['4.25 Litre',1936,1939],['Mk V',1939,1941]],
+'BMW':[['2002',1968,1976],['2002 Turbo',1973,1974],['M1',1978,1981],['635 CSi',1978,1989],['M635 CSi',1984,1989],['850i',1989,1999],['850CSi',1992,1996],['M3 E30',1986,1991],['M3 E36',1992,1999],['M3 E46',2000,2006],['M3 E90',2007,2013],['M3 E92',2007,2013],['M3 G80',2021,2026],['M3 CS',2023,2026],['M5 E28',1984,1988],['M5 E34',1991,1995],['M5 E39',1998,2003],['M5 E60',2004,2010],['M5 F10',2011,2016],['M5 G90',2024,2026],['M8',2019,2026],['XM',2023,2026],['Z3 M Roadster',1997,2002],['Z4 M',2006,2008],['Z8',2000,2003],['1 Series M',2011,2012],['M2 F87',2016,2021],['M2 G87',2022,2026],['M4 F82',2014,2020],['M4 G82',2021,2026],['525d E39',1996,2003],['530d E39',1998,2003],['530d E60',2003,2010],['X5 3.0d E53',2001,2006],['X5 M E70',2009,2013],['320d E46',1998,2005],['330d E46',2003,2005],['330d E90',2005,2012],['325i E30',1985,1992],['M3 E30 Touring',1987,1991]],
+'Bugatti Pre-War':[['Type 35',1924,1931],['Type 37',1926,1930],['Type 40',1926,1930],['Type 41 Royale',1927,1933],['Type 43',1927,1931],['Type 44',1926,1930],['Type 50',1930,1934],['Type 51',1931,1935],['Type 55',1931,1935],['Type 57',1934,1940]],
+'Cadillac':[['CTS-V Coupe',2011,2015],['CTS-V Sedan',2009,2015],['CT5-V Blackwing',2022,2026],['CT4-V Blackwing',2022,2026],['Escalade',2000,2026],['DeVille',1949,2005],['Eldorado',1953,1978],['Fleetwood',1975,1996],['Seville',1975,1979]],
+'Cadillac Pre-War':[['V16',1930,1940],['V12',1931,1937],['Series 60',1936,1942],['Series 75',1936,1942]],
+'Caterham':[['Seven 270',2014,2026],['Seven 310',2016,2026],['Seven 360',2014,2026],['Seven 420',2014,2026],['Seven 485',2014,2026],['Seven 620R',2013,2026],['Seven CSR',2005,2013],['Seven Supersport',2008,2026]],
+'Chevrolet':[['Corvette C1',1953,1962],['Corvette C2',1963,1967],['Corvette C3',1968,1982],['Corvette C4',1984,1996],['Corvette C5',1997,2004],['Corvette C6',2005,2013],['Corvette C7',2014,2019],['Corvette C8',2020,2026],['Corvette Z06 C8',2023,2026],['Corvette E-Ray',2024,2026],['Camaro Z28',1967,2002],['Camaro ZL1',2012,2025],['Camaro SS',1967,2025],['K10 Pickup',1960,1987],['K10 Suburban',1960,1991],['K20 Pickup',1960,1987],['K5 Blazer',1969,1994],['C10 Pickup',1960,1987],['C30 Pickup',1960,1987],['El Camino',1959,1987],['Monte Carlo SS',1970,1988],['Nova SS',1966,1979],['Impala SS',1961,1969],['Chevelle SS',1964,1977],['Bel Air',1950,1981]],
+'Cord':[['L-29',1929,1932],['810',1935,1937],['812',1937,1937]],
+'Datsun/Nissan':[['240Z',1969,1973],['260Z',1974,1975],['280Z',1975,1978],['280ZX',1978,1983],['300ZX Z31',1983,1989],['300ZX Z32',1989,2000]],
+'Delage':[['D8',1929,1940],['D6',1930,1940]],
+'Delahaye':[['135',1935,1954],['175',1948,1951]],
+'Dodge':[['Viper RT/10',1992,2002],['Viper GTS',1996,2002],['Viper ACR',2008,2017],['Challenger Hellcat',2015,2025],['Charger Hellcat',2015,2025],['Demon',2018,2018]],
+'Duesenberg':[['Model A',1921,1926],['Model J',1928,1937],['Model SJ',1932,1937]],
+'Ferrari':[['250 GTO',1962,1964],['275 GTB',1964,1968],['308 GTB',1975,1985],['308 GTS',1977,1985],['328',1985,1989],['348',1989,1995],['355',1994,1999],['360 Modena',1999,2005],['360 Challenge Stradale',2003,2005],['430',2004,2009],['430 Scuderia',2007,2009],['458',2009,2015],['458 Speciale',2013,2015],['488',2015,2019],['488 Pista',2018,2020],['F8',2019,2023],['SF90',2020,2026],['296',2021,2026],['12Cilindri',2024,2026],['Roma',2020,2026],['Purosangue',2023,2026],['Testarossa',1984,1996],['512 BB',1976,1984],['456',1992,2003],['550 Maranello',1996,2001],['575M',2002,2006],['599',2006,2012],['612',2004,2011],['F40',1987,1992],['F50',1995,1997],['Enzo',2002,2004],['LaFerrari',2013,2016],['812',2017,2022]],
+'Fiat':[['500',1957,1975],['500 Abarth',2007,2022],['124 Spider',1966,1985],['124 Spider 2016',2016,2020],['Dino',1966,1972],['131 Abarth',1976,1981],['Punto GT',1993,1999],['Coupe Turbo',1994,2000],['Barchetta',1995,2005],['Multipla',1998,2010]],
+'Ford':[['GT40',1964,1969],['GT',2005,2006],['GT 2nd Gen',2017,2022],['Mustang Boss 302',1969,1970],['Mustang Mach 1',1969,2004],['Mustang GT500',1967,2026],['Mustang Dark Horse',2024,2026],['Mustang Bullitt',1968,2020],['Sierra Cosworth',1985,1992],['Escort Cosworth',1992,1996],['Focus RS Mk2',2009,2010],['Focus RS Mk3',2015,2018],['Puma ST',2019,2026],['Fiesta ST',2013,2025],['Ranger Raptor',2019,2026],['Bronco',2021,2026],['F100',1948,1983],['F150 Raptor',2010,2026],['F150 Lightning Heritage',2023,2026]],
+'Ford Pre-War':[['Model T',1908,1927],['Model A',1927,1931],['Model B',1932,1934],['V8',1932,1942]],
+'Frazer Nash':[['Chain Gang',1924,1939],['Le Mans Replica',1948,1953]],
+'Hispano-Suiza':[['H6',1919,1933],['J12',1931,1938],['K6',1934,1937]],
+'Honda':[['NSX NA1',1990,2005],['NSX NA2',1997,2005],['NSX NC1',2016,2022],['NSX Type S',2021,2022],['S2000',1999,2009],['Civic Type R EK9',1997,2000],['Civic Type R EP3',2001,2005],['Civic Type R FD2',2007,2011],['Civic Type R FK2',2015,2017],['Civic Type R FK8',2017,2021],['Civic Type R FL5',2023,2026],['Integra Type R DC2',1995,2001],['Integra Type R DC5',2001,2006],['Beat',1991,1996],['S660',2015,2022],['Legend',1985,2021],['Prelude',1978,2001],['Acty Van',1977,2021],['Life Step Van',1997,2003],['Element',2003,2011]],
+'Infiniti':[['G35 Coupe',2003,2007],['G37 Coupe',2008,2013],['G35 Sedan',2003,2006],['Q60 Red Sport',2017,2022],['FX35',2003,2008],['FX45',2003,2008],['FX50',2008,2013],['Q45',1989,2006],['M45',2003,2010]],
+'Isotta Fraschini':[['Tipo 8',1919,1924],['Tipo 8A',1924,1931]],
+'Isuzu':[['VehiCROSS',1997,2001],['Trooper',1981,2002],['Bighorn',1981,2002],['Wizard',1993,1998],['Faster',1972,2002]],
+'Jaguar':[['E-Type S1',1961,1968],['E-Type S2',1968,1971],['E-Type S3',1971,1975],['XJ-S',1975,1996],['XK8',1996,2006],['XKR',1998,2014],['XKR-S',2011,2014],['F-Type',2013,2024],['F-Type SVR',2016,2024],['XE SV Project 8',2018,2019],['F-Pace SVR',2017,2026],['XJ220',1992,1994],['C-X75',2013,2014]],
+'Jeep':[['Wrangler YJ',1987,1995],['Wrangler TJ',1997,2006],['Wrangler JK',2007,2018],['Wrangler JL',2018,2026],['Wrangler Rubicon 392',2021,2026],['Grand Cherokee Trackhawk',2018,2021],['Grand Wagoneer',1963,1991],['CJ-5',1954,1983],['CJ-7',1976,1986]],
+'Koenigsegg':[['CC8S',2002,2004],['CCR',2004,2006],['CCX',2006,2010],['CCXR',2007,2010],['Agera',2011,2014],['Agera R',2011,2014],['Agera RS',2015,2018],['One:1',2014,2014],['Regera',2016,2020],['Jesko',2020,2026],['Jesko Absolut',2020,2026],['Gemera',2022,2026],['CC850',2022,2026]],
+'Lagonda':[['Rapier',1934,1935],['LG6',1937,1940],['V12',1937,1940]],
+'Lamborghini':[['Miura',1966,1973],['Countach',1974,1990],['Diablo',1990,2001],['Diablo SV',1995,2001],['Murcielago',2001,2010],['Murcielago LP670',2009,2010],['Gallardo',2003,2013],['Gallardo Superleggera',2007,2010],['Huracan',2014,2024],['Huracan Performante',2017,2022],['Aventador',2011,2022],['Aventador SVJ',2018,2022],['Urus',2018,2026],['Revuelto',2023,2026],['Temerario',2025,2026]],
+'Lancia':[['Stratos',1972,1978],['037',1982,1983],['Delta Integrale 8v',1987,1989],['Delta Integrale 16v',1989,1994],['Delta HF Turbo',1983,1987],['Fulvia',1963,1976]],
+'Land Rover':[['Series I',1948,1958],['Series II',1958,1971],['Series III',1971,1985],['Defender 90',1983,2016],['Defender 110',1983,2016],['Defender 130',1983,2016],['Defender 90 L663',2020,2026],['Defender 110 L663',2020,2026],['Range Rover Classic',1970,1996],['Range Rover P38',1994,2002],['Range Rover L322',2002,2012],['Range Rover Sport',2005,2026],['Range Rover L460',2022,2026],['Discovery 1',1989,1998],['Discovery 2',1998,2004],['Discovery 3',2004,2009],['Discovery 4',2009,2016],['Freelander 1',1997,2006]],
+'Lexus':[['LFA',2010,2012],['LC500',2017,2026],['LC500h',2017,2026],['LX470',1998,2007],['LX570',2007,2021],['LX600',2022,2026],['SC300',1991,2000],['SC400',1991,2000],['SC430',2001,2010],['IS300',2000,2005],['IS-F',2008,2014],['GS-F',2016,2020],['RC-F',2015,2024],['RC-F Track Edition',2020,2022],['GS300',1993,2005],['LS400',1989,2000],['LS430',2001,2006],['LS460',2006,2012]],
+'Lincoln Pre-War':[['Model L',1920,1930],['Model K',1930,1942],['Zephyr',1936,1942],['Continental',1939,1942]],
+'Lotus':[['Elan',1962,1975],['Europa',1966,1975],['Esprit S1',1976,1978],['Esprit Turbo',1980,1987],['Esprit V8',1996,2004],['Elise S1',1996,2000],['Elise S2',2001,2011],['Elise S3',2011,2021],['Exige S1',2000,2002],['Exige S2',2004,2012],['Exige V6',2012,2021],['Evora',2009,2021],['Emira',2022,2026],['Eletre',2023,2026]],
+'Maserati':[['Ghibli 310',1966,1973],['Bora',1971,1978],['Merak',1972,1983],['Khamsin',1974,1982],['Quattroporte II',1994,2001],['Quattroporte V',2003,2012],['Quattroporte VI',2013,2022],['GranTurismo',2007,2019],['GranTurismo 2023',2022,2026],['GranCabrio',2010,2019],['GranCabrio 2023',2023,2026],['3200 GT',1998,2002],['Coupe',2001,2007],['Spyder',2001,2007],['MC12',2004,2005],['GranSport',2004,2007],['MC20',2021,2026],['Grecale',2022,2026]],
+'Mazda':[['Cosmo',1967,1972],['RX-7 SA',1978,1985],['RX-7 FB',1978,1985],['RX-7 FC',1986,1992],['RX-7 FD',1992,2002],['RX-8',2003,2012],['MX-5 NA',1989,1997],['MX-5 NB',1998,2005],['MX-5 NC',2005,2015],['MX-5 ND',2015,2026],['Mazdaspeed 3',2007,2013],['Cosmo LP',1975,1981]],
+'McLaren':[['F1',1992,1998],['P1',2013,2015],['675LT',2015,2017],['720S',2017,2023],['765LT',2020,2022],['Senna',2018,2019],['Speedtail',2020,2021],['Artura',2021,2026],['750S',2023,2026],['W1',2024,2026],['600LT',2018,2020],['570S',2015,2021]],
+'Mercedes-Benz':[['G240 W460',1979,1994],['G300 W460',1979,1994],['G350 W460 Diesel',1990,1994],['G300 W463',1989,2026],['G320 W463',1993,2006],['G350 W463 Diesel',2008,2018],['G500 W463',1993,2018],['G55 AMG W463',1999,2012],['G63 AMG W463',2012,2018],['190SL',1955,1963],['300SL Gullwing',1954,1957],['300SL Roadster',1957,1963],['190E 2.3-16',1984,1988],['190E 2.5-16 Evo',1990,1993],['R107 SL',1971,1989],['SL500 R129',1989,2001],['SL600 R129',1992,2001],['SL73 AMG R129',1999,2001],['SLC180 R172',2016,2020],['SLC200 R172',2016,2020],['SLC300 R172',2016,2020],['SLC43 AMG R172',2016,2020],['SL500 R230',2001,2012],['SL63 AMG R230',2006,2012],['W124 500E',1991,1995],['W124 300D',1985,1995],['W124 300TD Wagon',1985,1996],['W124 E300 Diesel',1993,1996],['W210 E300 Diesel',1995,2002],['W210 E320 CDI',1999,2002],['W211 E320 CDI',2002,2009],['W211 E280 CDI',2005,2009],['E350 W212',2009,2016],['E550 W212',2009,2013],['E63 AMG W212',2009,2016],['W124 E220',1992,1996],['W201 190E',1982,1993],['W126 560SEC',1981,1991],['W140 S600',1991,1998],['C36 AMG',1994,1997],['C63 AMG W204',2008,2015],['CLS55 AMG',2004,2006],['CLS63 AMG',2006,2011],['S63 AMG W221',2007,2013],['S65 AMG W221',2007,2013],['CLK GTR',1997,1998],['SLR McLaren',2003,2010],['SLS AMG',2010,2014],['AMG GT',2014,2026],['AMG GT Black Series',2020,2023],['GT 63 AMG',2019,2026],['G63 AMG',2012,2026],['G300 CDI',2000,2012],['G350 CDI',2009,2018],['E63 AMG',2006,2026],['C63 AMG W206',2023,2026],['SL 63 AMG R232',2022,2026],['W123 300D',1976,1985],['W123 300TD',1977,1986],['W116 450SEL 6.9',1975,1980]],
+'Mercedes-Benz Pre-War':[['SSK',1928,1932],['500K',1934,1936],['540K',1936,1940],['770 Grosser',1930,1943],['170',1931,1942],['260D',1936,1940]],
+'MG':[['MGA',1955,1962],['MGB',1962,1980],['MGB GT',1965,1980],['MGC',1967,1969],['Midget',1961,1979],['RV8',1992,1995]],
+'Mitsubishi':[['Starion',1982,1990],['GTO/3000GT',1990,2001],['Lancer Evo I',1992,1994],['Lancer Evo II',1994,1995],['Lancer Evo III',1995,1996],['Lancer Evo IV',1996,1998],['Lancer Evo V',1998,1999],['Lancer Evo VI Tommi Makinen',1999,2001],['Lancer Evo VII',2001,2003],['Lancer Evo VIII',2003,2005],['Lancer Evo IX',2005,2007],['Lancer Evo X',2007,2016],['Delica L300',1979,1994],['Delica Space Gear',1994,2007],['Pajero',1982,2021]],
+'Morgan':[['4/4',1936,2026],['Plus 4',1950,2026],['Plus 8',1968,2004],['Aero 8',2000,2010],['Plus Six',2019,2026],['3 Wheeler',2011,2021]],
+'Nissan':[['Skyline GT-R R32',1989,1994],['Skyline GT-R R33',1995,1998],['Skyline GT-R R34',1999,2002],['Skyline R31 GTS-R',1987,1990],['GT-R R35',2007,2025],['GT-R Nismo',2014,2024],['400Z',2022,2026],['Silvia S13',1988,1994],['Silvia S14',1993,1999],['Silvia S15',1999,2002],['180SX',1989,1998],['Fairlady Z Z31',1983,1989],['Fairlady Z Z32',1989,2000],['370Z',2009,2021],['Stagea 260RS',1996,2001],['Pulsar GTI-R',1990,1994],['Pao',1989,1992],['Figaro',1991,1991],['S-Cargo',1989,1992],['Be-1',1987,1988],['Rasheen',1994,2000],['Cube Z10',1998,2002],['Cube Z11',2002,2008],['Caravan E24',1985,2001],['Safari Y60',1987,1997],['Safari Y61',1997,2007],['President',1965,2002]],
+'Packard Pre-War':[['Twin Six',1916,1923],['Eight',1923,1942],['Super Eight',1933,1942],['Twelve',1932,1939]],
+'Pagani':[['Zonda C12',1999,2002],['Zonda F',2005,2008],['Zonda R',2009,2012],['Zonda Cinque',2009,2010],['Huayra',2011,2018],['Huayra BC',2016,2018],['Huayra R',2021,2023],['Utopia',2022,2026]],
+'Peugeot':[['205 GTI',1984,1994],['205 T16',1984,1985],['306 GTI-6',1996,2002],['306 Rallye',1994,1997],['307 WRC',2004,2004],['406 Coupe',1997,2004],['504 Coupe',1969,1983],['504 Cabriolet',1969,1983],['205 Diesel',1983,1998],['405 Mi16',1987,1997]],
+'Pontiac':[['Firebird Trans Am',1969,2002],['GTO 1969',1969,1969],['GTO Judge',1969,1971],['Bonneville',1957,2005]],
+'Porsche':[['356 A',1955,1959],['356 B',1959,1963],['356 C',1963,1965],['912',1965,1969],['914',1969,1976],['924',1976,1988],['924 Carrera GT',1980,1981],['928 S',1979,1986],['928 GT',1989,1992],['928 GTS',1991,1995],['944',1982,1991],['944 Turbo',1985,1991],['944 S2',1989,1991],['968',1991,1995],['968 Club Sport',1993,1995],['911 T',1967,1973],['911 S',1966,1977],['911 E',1968,1973],['911 Carrera RS 2.7',1972,1974],['911 930 Turbo 3.0',1975,1977],['911 930 Turbo 3.3',1978,1989],['911 SC',1978,1983],['911 3.2 Carrera',1983,1989],['911 964 C2',1989,1994],['911 964 C4',1989,1994],['911 964 Turbo',1991,1994],['911 964 RS',1991,1994],['911 993 Carrera',1994,1998],['911 993 Carrera S',1997,1998],['911 993 Turbo',1995,1998],['911 993 GT2',1995,1998],['911 993 RS',1995,1998],['911 996 Carrera',1997,2005],['911 996 Carrera 4S',2001,2005],['911 996 Turbo',2000,2005],['911 996 GT2',2001,2005],['911 996 GT3',1999,2005],['911 996 GT3 RS',2003,2005],['911 997 Carrera S',2004,2012],['911 997 Carrera 4S',2005,2012],['911 997 Turbo',2006,2013],['911 997 Turbo S',2010,2013],['911 997 GT2 RS',2010,2012],['911 997 GT3',2006,2012],['911 997 GT3 RS',2006,2012],['911 991 Carrera S',2011,2019],['911 991 Turbo S',2013,2019],['911 991 GT3',2013,2019],['911 991 GT3 RS',2015,2019],['911 991 GT2 RS',2017,2019],['911 991 R',2016,2017],['911 991 Speedster',2019,2019],['911 992 Carrera S',2019,2026],['911 992 Turbo S',2020,2026],['911 992 GT3',2021,2026],['911 992 GT3 RS',2022,2026],['911 992 Sport Classic',2022,2023],['911 992 S/T',2023,2026],['911 992 Dakar',2022,2026],['Boxster 986',1996,2004],['Boxster 987',2004,2012],['Boxster 981',2012,2016],['Boxster 982',2016,2026],['Cayman 987',2005,2012],['Cayman 981',2012,2016],['Cayman GT4 981',2015,2016],['Cayman GT4 RS',2021,2026],['Taycan Turbo S',2020,2026],['Taycan GT',2024,2026],['Cayenne Turbo GT',2022,2026],['Cayenne GTS',2003,2026],['Cayenne GTS Coupe',2019,2026],['Cayenne Turbo',2002,2026],['Cayenne S',2002,2026],['Cayenne E-Hybrid',2014,2026],['959',1986,1988],['Carrera GT',2004,2006],['918 Spyder',2013,2015]],
+'Ram':[['1500 TRX',2021,2024],['1500 Classic',2019,2026],['2500 Power Wagon',2005,2026]],
+'Renault':[['Alpine A110',1961,1977],['Alpine A110 2017',2017,2026],['Clio V6',2001,2005],['Clio Williams',1993,1996],['Megane RS 225',2004,2009],['Megane RS 265',2010,2012],['Megane RS 275',2013,2016],['Megane RS Trophy',2017,2021],['5 Turbo',1980,1986],['R8 Gordini',1964,1971],['Laguna V6',1993,2001]],
+'Rolls-Royce':[['Silver Shadow',1965,1980],['Silver Shadow II',1977,1980],['Silver Spirit',1980,1998],['Silver Spur',1980,1994],['Corniche',1971,1995],['Camargue',1975,1986],['Silver Seraph',1998,2002],['Phantom IV',1950,1956],['Phantom V',1959,1968],['Phantom VI',1968,1991],['Phantom VII',2003,2016],['Phantom VIII',2017,2026],['Ghost I',2009,2020],['Ghost II',2020,2026],['Wraith',2013,2023],['Dawn',2015,2023],['Cullinan',2018,2026],['Spectre',2023,2026]],
+'Rolls-Royce Pre-War':[['Silver Ghost',1906,1926],['Phantom I',1925,1929],['Phantom II',1929,1936],['Phantom III',1936,1939],['20hp',1922,1929],['20/25',1929,1936],['25/30',1936,1938],['Wraith',1938,1939]],
+'RUF':[['CTR Yellowbird',1987,1992],['CTR2',1995,1998],['CTR3',2007,2012],['RGT',2000,2006],['RT12',2004,2010],['CTR Anniversary',2017,2022],['SCR',2018,2022],['GTR',1991,1996],['Turbo R',1991,1998],['3400S',1994,2001]],
+'SAAB':[['900 Turbo',1978,1994],['900 SPG',1984,1991],['9000 Aero',1991,1998],['9-3 Viggen',1999,2002],['9-3 Aero',2002,2011],['9-5 Aero',1997,2011],['9-5 SportCombi',2005,2011],['9-2X Aero',2005,2006],['Sonett III',1970,1974]],
+'Shelby':[['Cobra 260',1962,1963],['Cobra 289',1963,1965],['Cobra 427',1965,1967],['GT350',1965,1970],['GT500',1967,1970],['GT350 2011',2011,2014],['GT500 2013',2013,2014],['GT350R',2015,2020],['GT500 2020',2020,2023],['Daytona Coupe',1964,1965]],
+'Subaru':[['Impreza WRX GC8',1992,2000],['Impreza WRX STI GD',2000,2007],['Impreza WRX STI GR',2007,2014],['Legacy RS',1989,1994],['Legacy B4',1998,2009],['SVX',1991,1997],['BRZ',2012,2026],['WRX STI VA',2014,2021],['WRX VB',2022,2026],['WRX S4',2021,2026],['Forester STI',2004,2013],['Sambar',1961,2012]],
+'Suzuki':[['Cappuccino',1991,1998],['Jimny SJ',1981,1998],['Jimny JB',1998,2018],['Jimny JB74',2018,2026],['Alto Works',1987,2021],['Carry Van',1979,2026],['Every Van',1982,2026],['Hustler',2014,2026],['Swift Sport',2005,2026]],
+'Talbot-Lago':[['T150',1935,1940],['T26',1946,1955]],
+'Toyota':[['2000GT',1967,1970],['Supra A60',1981,1986],['Supra A70',1986,1993],['Supra A80',1993,2002],['Supra A90',2019,2026],['MR2 AW11',1984,1989],['MR2 SW20',1989,1999],['MR2 ZZW30',1999,2007],['Celica GT-Four ST165',1985,1989],['Celica GT-Four ST185',1989,1993],['Celica GT-Four ST205',1993,1999],['Corolla AE86',1983,1987],['Land Cruiser FJ40',1960,1984],['Land Cruiser FJ55',1967,1987],['Land Cruiser 80',1989,1997],['Land Cruiser 100',1998,2007],['Land Cruiser 200',2007,2021],['Land Cruiser 300',2021,2026],['Land Cruiser 70',1984,2026],['Hilux',1968,2026],['HiAce',1967,2026],['Hiace Super GL',2004,2026],['GR Yaris',2020,2026],['GR86',2021,2026],['GR Corolla',2022,2026],['Century',1967,2026],['Alphard',2002,2026],['Vellfire',2008,2026],['RAV4 Euro Spec',2000,2018],['Prado',1990,2026]],
+'Triumph':[['TR2',1953,1955],['TR3',1955,1962],['TR4',1961,1965],['TR4A',1965,1968],['TR5',1967,1968],['TR6',1969,1976],['TR7',1975,1981],['TR8',1979,1981],['Spitfire',1962,1980],['GT6',1966,1973],['Stag',1970,1977]],
+'TVR':[['Griffith',1963,1965],['Chimaera',1992,2003],['Cerbera',1994,2003],['Tuscan',1999,2006],['Tamora',2001,2006],['Sagaris',2004,2006],['T350',2002,2006]],
+'Unknown/Other':[['Unknown/Other',1885,2026]],
+'Veteran/Edwardian':[['Veteran Car pre-1905',1885,1904],['Edwardian Car 1905-1918',1905,1918],['Vintage Car 1919-1930',1919,1930],['Pre-War Classic 1931-1945',1931,1945]],
+'Volkswagen':[['Golf GTI Mk1',1976,1983],['Golf GTI Mk2',1983,1992],['Golf GTI Mk3',1991,1997],['Golf R32 Mk4',2002,2004],['Golf R Mk6',2010,2013],['Golf R Mk7',2013,2019],['Golf R Mk8',2020,2026],['Golf GTI Mk8',2020,2026],['Golf TDI Mk4',1997,2004],['Golf TDI Mk5',2003,2009],['Golf TDI Mk6',2008,2013],['Corrado G60',1988,1995],['Corrado VR6',1991,1995],['Scirocco',1974,1992],['Phaeton W12',2002,2016],['Touareg V10 TDI',2002,2010],['Passat W8',2001,2004],['Polo GTI',1995,2026],['T3 Westfalia',1979,1991],['T4',1990,2003],['T5',2003,2015],['T6',2015,2026]],
+'Volvo':[['P1800',1961,1973],['242 Turbo',1981,1984],['850 T5-R',1994,1997],['850 R Estate',1995,1997],['C70 T5',1997,2005],['S60R',2003,2009],['V70R',1997,2007],['XC70',1997,2016],['740 Turbo',1984,1992],['940 Turbo',1990,1998],['Amazon',1956,1970]]
+};
+const makes=Object.keys(CAR_MODELS).sort();
+const mSel=document.getElementById('make');
+makes.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;mSel.appendChild(o);});
+document.getElementById('year').addEventListener('change',function(){if(document.getElementById('make').value)updateModels();checkYearModel();});
+function updateCurrency(){const c=CURRENCY[document.getElementById('origin').value];if(c){const sel=document.getElementById('currOverride');if(sel)sel.value=c.c;}}
+function overrideCurrency(){}
+function checkYearModel(){const year=parseInt(document.getElementById('year').value);const make=document.getElementById('make').value;const modelEl=document.getElementById('model');const model=modelEl?modelEl.value:'';const e=document.getElementById('errMsg');if(!year||!make||!model)return;const models=CAR_MODELS[make]||[];const match=models.find(m=>m[0]===model);if(match&&(year<match[1]||year>match[2])){e.textContent=model+' was produced '+match[1]+'\u2013'+match[2]+'. This year/model combination may not be accurate.';e.style.display='block';}else if(e.textContent.includes('produced')){e.style.display='none';}}
+function checkSameCountry(){const o=document.getElementById('origin').value;const d=document.getElementById('dest').value;const e=document.getElementById('errMsg');if(o&&d&&o===d){e.textContent='Origin and destination must be different countries.';e.style.display='block';}else if(e.textContent.includes('different countries')){e.style.display='none';}}
+function updateModels(){const make=document.getElementById('make').value;const year=parseInt(document.getElementById('year').value)||0;const mf=document.getElementById('modelField');const allMods=CAR_MODELS[make]||[];const filtered=year?allMods.filter(m=>year>=m[1]&&year<=m[2]):allMods;const mods=filtered.length>0?filtered:allMods;mf.innerHTML='<label style="font-family:Archivo,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#55595E;">Model</label><select id="model" onchange="checkYearModel()" style="background:#ffffff;border:2px solid #111111;color:#111111;font-family:Inter,sans-serif;font-size:16px;font-weight:400;padding:11px 12px;min-height:44px;outline:none;width:100%;-webkit-appearance:none;appearance:none;"><option value="">'+(filtered.length>0?'Select ('+filtered.length+' match)':'Select model')+'</option></select>';const sel=document.getElementById('model');mods.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[0]+(year&&(year<m[1]||year>m[2])?' ('+m[1]+'-'+m[2]+')':'');sel.appendChild(o);});}
+function safeParseJSON(raw){const a=raw.indexOf('{'),b=raw.lastIndexOf('}');if(a===-1||b===-1)throw new Error('No JSON found');let s=raw.slice(a,b+1),out='',inStr=false,esc=false;for(let i=0;i<s.length;i++){const ch=s[i],code=s.charCodeAt(i);if(esc){out+=ch;esc=false;continue;}if(ch==='\\'){esc=true;out+=ch;continue;}if(ch==='"'){inStr=!inStr;out+=ch;continue;}if(inStr&&code<32){if(code===10)out+='\\n';else if(code===13)out+='\\r';else if(code===9)out+='\\t';continue;}out+=ch;}return JSON.parse(out);}
+async function calculate(){const origin=document.getElementById('origin').value;const dest=document.getElementById('dest').value;const year=document.getElementById('year').value;const make=document.getElementById('make').value;const modelEl=document.getElementById('model');const model=modelEl?modelEl.value:'';const price=document.getElementById('price').value;
+const isModified=document.getElementById('isModified').checked;const errEl=document.getElementById('errMsg');if(!origin||!dest||!year||!make||!model||!price){errEl.textContent='Please fill in all fields.';errEl.style.display='block';return;}if(origin===dest){errEl.textContent='Origin and destination must be different countries.';errEl.style.display='block';return;}errEl.style.display='none';document.getElementById('formPanel').style.display='none';document.getElementById('loadingPanel').style.display='block';document.getElementById('resultsPanel').style.display='none';const selCurr=document.getElementById('currOverride');
+const selCurrCode=selCurr?selCurr.value:'';
+const CURR_MAP={'GBP':{s:'£',c:'GBP'},'EUR':{s:'€',c:'EUR'},'USD':{s:'$',c:'USD'},'JPY':{s:'¥',c:'JPY'},'AUD':{s:'A$',c:'AUD'},'CAD':{s:'C$',c:'CAD'},'SEK':{s:'kr',c:'SEK'},'CHF':{s:'Fr',c:'CHF'},'ZAR':{s:'R',c:'ZAR'},'AED':{s:'Dhs',c:'AED'}};
+const oC=selCurrCode&&CURR_MAP[selCurrCode]?CURR_MAP[selCurrCode]:(CURRENCY[origin]||{s:'$',c:'USD'});const dC=DEST[dest]||{s:'$',c:'USD'};const age=2026-parseInt(year);const qualifiesNow=parseInt(year)<=(2026-25);const qualifyYear=parseInt(year)+25;const yearsToExempt=qualifyYear-2026;const nearMiss=!qualifiesNow&&yearsToExempt>=0&&yearsToExempt<=3;const monthsToExempt=nearMiss?Math.round(yearsToExempt*12):0;const prompt=`Car import for The Daily Vroom. Car: ${year} ${make} ${model} (${age} yrs old in 2026). Route: ${CN[origin]} to ${CN[dest]}. Price: ${oC.s}${parseFloat(price).toLocaleString()} ${oC.c}.${origin==='AE'&&selCurrCode==='AED'?' Pre-converted USD value: $'+Math.round(parseFloat(price)/3.6725).toLocaleString()+' (AED fixed peg: 1 USD = 3.6725 AED). Use this USD figure for the purchase price line item.':''}\n\nRULES:\n1. Flag year/model mismatches in The Daily Vroom Take.\n2. Round ALL values to nearest whole dollar. No cents, no decimals. NEVER round to nearest thousand. $141,576 is correct. $142,000 is wrong.2b. For the Purchase Price sublabel always use this exact format: "[Year] [Make] [Model], converted at live ECB rate" — never show intermediate USD conversion steps or exchange rate numbers in the sublabel.\n3. No markdown in tdv_take - plain sentences only, no asterisks, no bold.\n3b. ALWAYS use the destination currency symbol ${dC.s} before numbers in tdv_take. NEVER write currency codes like GBP, USD, EUR, AUD after numbers.\n4. NEVER show source country VAT as a line item. Omit completely.\n5. 25-YEAR RULE - US DESTINATION ONLY:\n   - ONLY applies when destination is United States.\n   - For US destination this ${year} car: ${qualifiesNow?'QUALIFIES for 25-year rule. No EPA/DOT compliance needed. Section 232 auto tariff (25%) is exempt for vehicles 25+ years old. However reciprocal tariffs still apply regardless of vehicle age. Apply these rates by origin: UK=10% total (2.5% MFN + 7.5% reciprocal, UK-US deal). Use sublabel: 10% of CIF (UK-US trade deal rate, applies regardless of vehicle age). Germany/France/Italy/Netherlands/Sweden/Ireland/Belgium=15% total (2.5% MFN + 12.5% reciprocal, EU-US framework). Use sublabel: 15% of CIF (EU reciprocal tariff, applies regardless of vehicle age). Japan=15% total. Use sublabel: 15% of CIF (Japan reciprocal tariff, applies regardless of vehicle age). Australia/Switzerland/South Africa/UAE=27.5% total. Use sublabel: 27.5% of CIF (2.5% MFN + 25% reciprocal tariff). Canada=USMCA near 0%. Apply the correct rate for origin ${origin}. For compliance line item use label "Title and registration" with sublabel "State DMV processing" — do NOT say EPA/DOT for 25-year exempt vehicles. In tdv_take, NEVER mention EPA, DOT, NHTSA or compliance paperwork for 25-year exempt vehicles. This is an absolute rule — do not reference compliance in any form for 25+ year old vehicles importing to US.':nearMiss?'will qualify in '+qualifyYear+' ('+monthsToExempt+' months away)':'does NOT qualify. Apply these CURRENT 2026 Section 232 rates by origin: UK=10% total (2.5% MFN + 7.5% Section 232 automotive tariff, UK-US deal). Use sublabel: 10% of CIF (UK-US trade deal rate). Germany/France/Italy/Netherlands/Sweden/Ireland/Belgium/Portugal=15% total (EU-US framework deal). Use sublabel: 15% of CIF (EU-US Turnberry Agreement rate — under review, July 2026 deadline).Japan=15% total (US-Japan framework deal). Use sublabel: 15% of CIF (Japan standard rate). Australia/Switzerland/South Africa/UAE=27.5% total (2.5% MFN + 25% Section 232 automotive tariff, no trade deal). Use sublabel: 27.5% of CIF (2.5% MFN + 25% Section 232 automotive tariff). Canada=USMCA-compliant near 0%, non-USMCA 27.5%. Apply the correct rate for origin ${origin}.'}\n   ${dest==='US'&&nearMiss?`*** DUTY RATE FOR THIS NEAR-MISS CAR ***
+This car does NOT yet qualify for the 25-year rule. Apply the correct 2026 Section 232 rate for origin ${origin}: UK=10% of CIF (UK-US trade deal rate). Germany/France/Italy/Netherlands/Sweden/Ireland/Belgium/Portugal=15% of CIF (EU-US Turnberry Agreement rate). Japan=15% of CIF. Australia/Switzerland/South Africa/UAE=27.5% of CIF. Do NOT use 2.5% — that only applies to cars that already qualify.
+
+*** STORAGE STRATEGY NET MATH ***
+Duty saving by waiting = the import duty line item value (call this DUTY_SAVING).
+
+Storage cost = $200/month x ${monthsToExempt} months = $${monthsToExempt*200}.
+NET = DUTY_SAVING minus $${monthsToExempt*200}.
+IF NET > 0: show duty as real line item, add green saving line, set storage_play true, tdv_take must state the net saving and recommend waiting.
+IF NET <= 0: do NOT show saving line, set storage_play false, tdv_take must say waiting does not pencil out — storage costs $${monthsToExempt*200} but only saves $[DUTY_SAVING] in duty. Import now.`:''}\n5d. CHICKEN TAX - US DESTINATION ONLY: If the vehicle is a pickup truck (Hilux, Land Cruiser pickup, Ranger, any vehicle classified as a light truck/pickup), import duty to the US is 25% of CIF regardless of vehicle age. The 25-year rule removes safety/emissions compliance only — it does NOT reduce the 25% Chicken Tax on trucks. Flag clearly in tdv_take and import duty sublabel: "25% light truck tariff (Chicken Tax) — applies regardless of vehicle age."\n5b. EPA/DOT: For sub-25-year cars importing to US that do NOT qualify for the 25-year exemption: EPA/DOT compliance line item must include sublabel noting "May require EPA/DOT compliance conversion ($15,000-$30,000 depending on spec and pathway) — not included here." Flag this clearly in tdv_take. NEVER mention EPA/DOT for UK, EU, Ireland, Belgium, Australia, Canada, Japan, UAE, or 25-year exempt vehicles.\n5c. US-MARKET CARS: If modern post-2005 car with US market variant, note compliance may already be met.\n6. COST ACCURACY - label uncertain fees as "Estimated" in sublabel:\n   - FOB: ONLY include for US, Japan, Australia, Canada, South Africa, UAE origins. $100-500. Label "Estimated". Do NOT include FOB for UK or European origins (Germany, France, Italy, Netherlands, Sweden, Switzerland, Ireland, Belgium).\n   - RoRo freight UK/EU to US: $1,800-2,400. UK/EU to UAE (Jebel Ali): $1,400-1,900. Japan to US West Coast: $1,200-1,800. Japan to UAE: $800-1,200. Japan to Australia: $800-1,400. Japan to EU (Sweden, Germany, Netherlands, France, Italy, Belgium, Ireland): $1,400-1,800. AU to US: $2,000-2,800. AU to UAE: $900-1,400. US to UK: $1,800-2,400. US to UAE: $1,800-2,400.\n   - Port and broker: US $900-1,200. UK $400-700. AU $600-900. EU $400-700. UAE Dhs2,000-4,000 (~$550-1,100). Label "Estimated".\n   - Final mile: $400-700. Label "Estimated".\n   - Marine insurance: exactly 1% of purchase price (vehicle value).\n   - Compliance: $500-1,200. UK="IVA test and DVLA registration". AU="ADR compliance and state registration". JP="Shaken inspection — only include for cars importing TO Japan, not FROM Japan". UAE="ESMA registration and RTA plate" (~$300, both LHD and RHD accepted). NEVER "DOT/EPA" for non-US destinations or 25-year exempt vehicles.\n7. RHD RULE: Do NOT assume RHD from UK origin. European marques are LHD. Flag RHD for British marques (Aston Martin, Jaguar, Land Rover, Rolls-Royce, TVR) or Japanese cars. If RHD to US: no California, recommend FL/TX/OR/MT. UAE accepts both LHD and RHD with no restriction.\n7b. CRITICAL DUTY CALCULATION ORDER:\nStep 1: CIF = purchase price + FOB + RoRo freight + marine insurance\nStep 2: Import duty = CIF x applicable rate (NEVER purchase price alone)\nStep 3: VAT/GST where applicable = (CIF + duty) x VAT rate\nNEVER apply duty to purchase price only. Always use full CIF. CRITICAL TOTAL RULE: The final total is the arithmetic sum of exactly the line items shown — nothing more. If marine insurance appears as a line item at value X, it must NOT be added again anywhere. The total must equal: sum of all visible line item values. Cross-check your total against the sum of your line items before outputting.\nANTIQUE VEHICLE RULE: If the vehicle is 100 years old or older (manufactured in 1926 or earlier for 2026), flag in tdv_take that it may qualify as an antique under HTSUS 9706 rather than standard vehicle classification. This can materially affect duty rates. Add a sublabel note on the import duty line: "Vehicle may qualify as antique under HTSUS 9706 — verify classification with broker before assuming standard vehicle duty applies." Do not change the duty calculation, just add the flag.\n\nINTRA-EU RULE: When both origin AND destination are EU member states (Germany, France, Italy, Netherlands, Sweden, Belgium, Ireland, Portugal), there is NO import duty — free movement of goods applies within the EU single market. Show import duty as €0 with sublabel: EU single market — no import duty between member states.\n7c. DUTY SUBLABELS FOR NON-US DESTINATIONS: When destination is NOT the US, show the destination country's own import duty rate and name it correctly. Example: importing to Italy = 'EU import duty 6.5% of CIF'. Do NOT reference US tariff frameworks for non-US destinations.\nUK HISTORIC VEHICLE RULE: When destination is UK and the car is 30 years old or older, apply 0% import duty (HMRC historic vehicle classification) instead of the standard 6.5%. Use sublabel: UK historic vehicle — 0% duty (HMRC classification, verify original condition). If car is under 30 years old importing to UK, apply standard 6.5% duty. UK VAT: 5% for vehicles 30+ years old in original condition (verify with HMRC). 20% for vehicles under 30 years old or substantially modified. Applied to full CIF plus duty.\n7d. VAT/GST CALCULATION:\n   - UAE: 5% import duty on CIF value, then 5% VAT on (CIF + duty). AED pegged to USD at 3.6725. No luxury car tax.\n   - UK VAT: vehicles under 30 years old = 20% on full CIF plus duty. Vehicles 30 years old or older = 5% VAT on full CIF plus duty IF in original condition with no substantial modifications (HMRC historic vehicle classification, Heading 9705). Use sublabel: UK historic vehicle rate — 5% VAT (verify original condition with HMRC). If substantially modified, standard 20% VAT applies.\n   - Australia GST 10%: applied to CIF + duty. LCT 33% ONLY if total dutiable value EXCEEDS A$76,950.\n    - EU VAT: applied to CIF + duty. Sweden VAT 25%. Ireland VAT 23%. Belgium VAT 21%. France VAT 20%. Italy VAT 22%. Germany VAT 19%. Netherlands VAT 21%. Apply the correct rate for the specific destination country — do not guess.\n   - US: no federal VAT.\n8. SIGNAL: Use exactly one of these seven signal_level values: exceptional, green, good, amber, caution, red, avoid. Criteria: EXCEPTIONAL (exceptional) = import fees under 12% AND genuine value advantage — 25-year rule just kicked in, car unavailable domestically, weak currency window. STRONG BUY (green) = fees 12-20%, route works well, clear upside to importing this specific car. GOOD VALUE (good) = fees 20-28%, worth pursuing if car checks out on condition. VIABLE WITH CAVEATS (amber) = fees 28-35%, one specific issue could change the picture. PROCEED WITH CAUTION (caution) = fees 35-45%, high costs or structural problem with route or car. THINK TWICE (red) = fees 45-60%, math is hard to justify unless you specifically want this car. AVOID (avoid) = fees over 60%, OR modern car with 27.5% tariff plus compliance required plus no domestic advantage — walk away. Modern car under 10yrs from AU/ZA/CH/AE to US = caution or avoid depending on total cost. UK/EU/JP origin with 10-15% rate = good or amber. 25-year exempt car to US with low fees = exceptional or green. Never output just the colour name.\n9. Do not describe car era loosely. NEVER double-count purchase price. NEVER include CIF Value, CIF Total, subtotals, or Total Landed Cost as a line item — not even as a reference row. Line items are individual cost components only: purchase price, FOB, freight, insurance, duty, VAT, port/broker, final mile, compliance.\n10. 10. End with one documentation sentence: key docs + licensed customs broker essential.
+11. MODIFIED VEHICLE FLAG: ${isModified?'This vehicle has been significantly modified from stock. In the tdv_take, flag that modified vehicles can face customs valuation challenges, potential reclassification by CBP, and that a broker experienced with modified exotics is essential before committing. This is a meaningful risk and should be the second sentence of the take.':''}\n\nCalculate in ${dC.c} using LIVE rates from injected data above. AED EXCEPTION: AED is not on ECB - it is permanently pegged at 3.6725 per USD. Use the pre-converted USD value shown above for all AED calculations.\n\nThe Daily Vroom Take: EXACTLY 2 sentences, 40 words max. Do NOT explain the calculation mechanics. Focus on decision impact only. If signal_level is red or THINK TWICE: open with 'This only makes sense if you specifically want this car.' Then exactly one sentence on the single biggest cost risk — pick either the tariff cost OR the compliance cost, whichever is larger. Never mention both. No broker line. Max 35 words total for the entire take. If signal_level is amber or VIABLE WITH CAVEATS: sentence 1 = opportunity only, no costs. Sentence 2 = pick the LARGEST single cost number and mention that one figure only. HARD RULE: if you mention EPA/DOT you may not mention tariff. If you mention tariff you may not mention EPA/DOT. One cost. One sentence. Max 35 words total. If signal_level is green or STRONG BUY: open with the opportunity or value case for this specific car. Be direct and enthusiastic. One sentence on any key caveat to verify. Never use the 'This only makes sense' opener for green signals. CRITICAL: For any vehicle 25 years or older importing to US, the tdv_take MUST NOT contain the words EPA, DOT, NHTSA, compliance, homologation, or any reference to import regulations being avoided or waived. Only mention price, condition, tariff verification, and broker. Zero exceptions.\n\nJSON only: {"dest_currency_symbol":"${dC.s}","dest_currency_code":"${dC.c}","line_items":[{"label":"Purchase Price","sublabel":"converted at live ECB rate","value":0}],"total":0,"signal":"VIABLE WITH CAVEATS","signal_level":"amber","storage_play":false,"tdv_take":"."}`;
+  try{const r=await fetch(VERCEL_URL+'/api/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:2500,system:'You are a car import cost calculator. Return ONLY a valid JSON object. No markdown, no text before or after. Never use literal newlines inside JSON string values, use \\n instead.',messages:[{role:'user',content:prompt}],log:{origin,dest,make,model,year,price_local:parseFloat(price),currency:oC.c}})});if(!r.ok){const t=await r.text();throw new Error('HTTP '+r.status+': '+t.slice(0,200));}const d=await r.json();const raw=(d.content||[]).map(b=>b.text||'').join('').trim();const parsed=safeParseJSON(raw);parsed._supabase_row_id=d._supabase_row_id||null;renderResults(parsed,year,make,model,origin,dest,dC.s);}catch(e){document.getElementById('loadingPanel').style.display='none';document.getElementById('formPanel').style.display='block';errEl.textContent=e.message&&e.message.includes('529')?'A lot of people are running numbers right now, please give it a second and try again.':(e.message||'Unknown error');errEl.style.display='block';}}
+
+function renderResults(r,year,make,model,origin,dest,sym){
+  sym=r.dest_currency_symbol||sym;
+  const total=Math.round(Number(r.total));
+  const purchaseItem=(r.line_items||[]).find(i=>i.label==='Purchase Price'||i.label.toLowerCase().includes('purchase'));
+  const purchaseVal=purchaseItem?Math.round(Number(purchaseItem.value)):0;
+  const delta=total-(purchaseVal||total*0.7);
+  const deltaPercent=purchaseVal>0?Math.round((delta/purchaseVal)*100):0;
+  const carAge=2026-parseInt(year);
+  const qualifiesNow=parseInt(year)<=(2026-25);
+  const apiLevel=(r.signal_level||'amber').toLowerCase();
+  let sigLevel,sigLabel;
+  if(deltaPercent<12){sigLevel='exceptional';sigLabel='EXCEPTIONAL VALUE';}
+  else if(deltaPercent<20){sigLevel='green';sigLabel='STRONG BUY';}
+  else if(deltaPercent<28){sigLevel='good';sigLabel='GOOD VALUE';}
+  else if(deltaPercent<35){sigLevel='amber';sigLabel='VIABLE WITH CAVEATS';}
+  else if(deltaPercent<45){sigLevel='caution';sigLabel='PROCEED WITH CAUTION';}
+  else if(deltaPercent<60){sigLevel='red';sigLabel='THINK TWICE';}
+  else{sigLevel='avoid';sigLabel='AVOID';}
+  if(apiLevel==='avoid'){sigLevel='avoid';sigLabel='AVOID';}
+  else if(apiLevel==='red'&&sigLevel!=='avoid'){sigLevel='red';sigLabel='THINK TWICE';}
+  else if(apiLevel==='caution'&&!['avoid','red'].includes(sigLevel)){sigLevel='caution';sigLabel='PROCEED WITH CAUTION';}
+  else if(apiLevel==='exceptional'&&sigLevel==='exceptional'){sigLevel='exceptional';sigLabel='EXCEPTIONAL VALUE';}
+  else if(apiLevel==='green'&&sigLevel==='exceptional'){sigLevel='exceptional';sigLabel='EXCEPTIONAL VALUE';}
+  if(dest==='US'&&qualifiesNow&&!['avoid','red','caution'].includes(sigLevel)){
+    if(deltaPercent<12)sigLevel='exceptional',sigLabel='EXCEPTIONAL VALUE';
+    else sigLevel='green',sigLabel='STRONG BUY';
+  }
+  if(dest==='US'&&carAge<25&&['exceptional','green'].includes(sigLevel)){sigLevel='good';sigLabel='GOOD VALUE';}
+  if(total<15000&&sigLevel==='avoid'&&apiLevel!=='avoid'){sigLevel='red';sigLabel='THINK TWICE';}
+  if(dest==='US'&&carAge<3&&(origin==='AU'||origin==='ZA'||origin==='CH'||origin==='AE')&&sigLevel!=='exceptional'){sigLevel='avoid';sigLabel='AVOID';}
+  const storageFlag=r.storage_play===true&&dest==='US';
+  const isMobile=window.innerWidth<=560;
+  document.getElementById('resHead').textContent=year+' '+make+' '+model+' \u2014 '+CN[origin]+' \u2192 '+CN[dest];
+  document.getElementById('adjustHint').style.display='block';
+  const table=document.getElementById('costTable');
+  table.innerHTML='';
+  const filteredItems=(r.line_items||[]).filter(item=>!item.label.toLowerCase().includes('cif')&&!item.label.toLowerCase().includes('subtotal')&&!item.label.toLowerCase().includes('total landed'));
+  filteredItems.forEach((item,i)=>{
+    const val=Math.round(Number(item.value));
+    const isSaving=val<0;
+    const row=document.createElement('div');
+    row.className=(isSaving?'savrow':'crow')+' breakdown-row';
+    if(isMobile)row.style.display='none';
+    const isNotIncluded=val===0&&item.sublabel&&item.sublabel.toLowerCase().includes('not included');
+    const displayVal=isNotIncluded?'—':isSaving?'\u2212 '+sym+Math.abs(val).toLocaleString():sym+val.toLocaleString();
+    const valAttr=isNotIncluded?0:Math.abs(val);
+    row.innerHTML='<div class="clbl">'+item.label+(item.sublabel?'<span class="csub">'+item.sublabel+'</span>':'')+'</div><div class="cval" id="cv_'+i+'">'+displayVal+'</div>';
+    row.dataset.val=isSaving?-valAttr:valAttr;
+    row.dataset.active='true';
+    row.style.cursor='pointer';
+    row.title='Tap to remove from total';
+    row.onclick=function(){
+      const active=this.dataset.active==='true';
+      const v=parseFloat(this.dataset.val)||0;
+      const cvEl=this.querySelector('.cval');
+      if(active){this.dataset.active='false';this.style.opacity='0.3';cvEl.textContent='\u2014';adjustTotal(-v);}
+      else{this.dataset.active='true';this.style.opacity='1';cvEl.textContent=isSaving?'\u2212 '+sym+Math.abs(v).toLocaleString():sym+Math.abs(v).toLocaleString();adjustTotal(v);}
+    };
+    table.appendChild(row);
+  });
+  const tot=document.createElement('div');
+  tot.className='totrow';
+  tot.innerHTML='<span class="tot-lbl">Total Landed Cost</span><span class="tot-val">'+sym+total.toLocaleString()+'</span>';
+  table.appendChild(tot);
+  const deltaEl=document.getElementById('deltaLine');
+  const deltaValEl=document.getElementById('deltaVal');
+  if(purchaseVal>0){
+    const sign=delta>=0?'+':'';
+    deltaValEl.textContent=sign+sym+delta.toLocaleString()+' in fees ('+sign+deltaPercent+'%)';
+    deltaEl.style.display='flex';
+    document.getElementById('shareBlock').style.display='block';
+  }
+  const ctxEl=document.getElementById('contextLine');
+  let ctxText='Typical imports add 20\u201330% on top of purchase price. Shared container shipping may be available on some routes at lower cost than RoRo \u2014 check with your shipping agent for availability and pricing.';
+  if(deltaPercent>30&&sigLevel!=='green'&&dest!=='UK'&&dest!=='IE'&&dest!=='BE')ctxText+=' <span>This is above the typical range.</span>';
+  else if(deltaPercent<20&&!(dest==='US'&&carAge<25)&&purchaseVal<100000)ctxText+=' <span>This is relatively low.</span>';
+  ctxEl.innerHTML=ctxText;
+  ctxEl.style.display='block';
+  const toggleBtn=document.getElementById('breakdownToggle');
+  toggleBtn.style.display='block';
+  toggleBtn.textContent=isMobile?'View full cost breakdown':'Hide cost breakdown';
+  toggleBtn.dataset.open=isMobile?'false':'true';
+  const sigHtml='<div class="sig '+sigLevel+'"><span class="sigdot"></span>'+sigLabel+'</div>'+(storageFlag?'<div class="storybadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>Storage Play</div>':'');
+  document.getElementById('sigTag').innerHTML=sigHtml;
+  const paras=(r.tdv_take||'').split('\n\n').filter(p=>p.trim());
+  document.getElementById('verdictText').innerHTML=paras.map(p=>'<p>'+p+'</p>').join('');
+  const staxPanel=document.getElementById('stateTaxPanel');
+  const staxSel=document.getElementById('stateSel');
+  const staxResult=document.getElementById('stateTaxResult');
+  if(dest==='US'){
+    staxPanel.style.display='block';
+    staxPanel.dataset.total=total;
+    staxPanel.dataset.sym=sym;
+    if(staxSel.options.length<=1){
+      Object.keys(STATE_NAMES).sort((a,b)=>STATE_NAMES[a].localeCompare(STATE_NAMES[b])).forEach(code=>{
+        const o=document.createElement('option');o.value=code;
+        o.textContent=STATE_NAMES[code]+(STATE_TAX[code]===0?' (no sales tax)':' ('+Math.round(STATE_TAX[code]*1000)/10+'%)');
+        staxSel.appendChild(o);
+      });
+    }
+    staxSel.onchange=function(){
+      const code=this.value;if(!code){staxResult.innerHTML='';return;}
+      const rate=STATE_TAX[code];const t=parseInt(staxPanel.dataset.total);const s=staxPanel.dataset.sym;
+      const tax=Math.round(t*rate);const grand=t+tax+250;
+      staxResult.innerHTML='<div class="srow"><span>Sales tax \u2014 '+STATE_NAMES[code]+(rate===0?' (none)':' ('+Math.round(rate*1000)/10+'% state base)')+'</span><span class="sval">'+s+(rate===0?'0':tax.toLocaleString())+(rate>0?' <em>+ local</em>':'')+'</span></div><div class="srow"><span>Title &amp; registration</span><span class="sval">'+s+'250 <em>est.</em></span></div><div class="stot"><span>All-in total</span><span class="stot-val">'+s+grand.toLocaleString()+'</span></div>';
+    };
+  }else{staxPanel.style.display='none';}
+  window._lastCalc={year,make,model,origin,dest,sym,purchaseVal,total,delta,deltaPercent,sigLabel,originName:CN[origin]||origin,destName:CN[dest]||dest,rowId:r._supabase_row_id||null};
+  window._lastOutputs=r;
+  const originCurrency=CURRENCY[origin]?CURRENCY[origin].c:'USD';
+  const destCurrency=DEST[dest]?DEST[dest].c:'USD';
+  const sameCurrency=originCurrency===destCurrency;
+  if(r._supabase_row_id){fetch(VERCEL_URL+'/api/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({log:{row_id:r._supabase_row_id,total_landed:total,delta_percent:sameCurrency?deltaPercent:null}})}).catch(()=>{});}
+  document.getElementById('intentWrap').style.display='block';
+  document.getElementById('intentConfirm').style.display='none';
+  document.getElementById('intentBtns').style.display='flex';
+  document.getElementById('loadingPanel').style.display='none';
+  document.getElementById('resultsPanel').style.display='block';
+}
+
+function adjustTotal(delta){
+  const totEl=document.querySelector('.tot-val');
+  if(!totEl)return;
+  const current=parseInt(totEl.textContent.replace(/[^0-9]/g,''));
+  const sym=window._lastCalc?window._lastCalc.sym:'$';
+  totEl.textContent=sym+(current+delta).toLocaleString();
+}
+
+function logIntent(val){
+  document.getElementById('intentConfirm').style.display='block';
+  document.getElementById('intentBtns').style.display='none';
+  const c=window._lastCalc;
+  if(c&&c.rowId){fetch(VERCEL_URL+'/api/calculate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({log:{row_id:c.rowId,intent:val}})}).catch(()=>{});}
+}
+
+function generateShareCard(c){
+  const canvas=document.createElement('canvas');
+  canvas.width=1200;canvas.height=630;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#FAFAF8';ctx.fillRect(0,0,1200,630);
+  ctx.fillStyle='#E63312';ctx.fillRect(0,0,1200,6);
+  const sign=c.delta>=0?'+':'';
+  ctx.font='900 52px Archivo,sans-serif';ctx.fillStyle='#111111';
+  ctx.fillText((c.year+' '+c.make+' '+c.model).toUpperCase(),60,120);
+  ctx.font='400 24px Inter,sans-serif';ctx.fillStyle='#55595E';
+  ctx.fillText((c.originName||c.origin)+' to '+(c.destName||c.dest),60,165);
+  ctx.strokeStyle='#D9D9D4';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(60,210);ctx.lineTo(1140,210);ctx.stroke();
+  ctx.font='900 62px Archivo,sans-serif';ctx.fillStyle='#E63312';
+  ctx.fillText('Importing this adds '+sign+c.sym+c.delta.toLocaleString(),60,340);
+  ctx.font='500 30px IBM Plex Mono,monospace';ctx.fillStyle='#3A3A3A';
+  ctx.fillText(c.sym+(c.purchaseVal||0).toLocaleString()+' listed   →   '+c.sym+c.total.toLocaleString()+' landed',60,430);
+  ctx.font='400 22px Inter,sans-serif';ctx.fillStyle='#55595E';
+  ctx.fillText('Most buyers don\'t factor this in',60,475);
+  ctx.strokeStyle='#D9D9D4';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(60,490);ctx.lineTo(1140,490);ctx.stroke();
+  ctx.font='500 19px IBM Plex Mono,monospace';ctx.fillStyle='#8A8E93';
+  ctx.fillText('Run your own numbers at thedailyvroom.com/import-calculator',60,540);
+  const ts='The Daily Vroom';
+  const tw=ctx.measureText(ts).width;
+  ctx.fillText(ts,1140-tw,540);
+  return canvas;
+}
+
+async function handleShare(){
+  const c=window._lastCalc;
+  if(!c)return;
+  const conf=document.getElementById('shareConfirmInline');
+  const sheet=document.getElementById('shareSheet');
+  conf.textContent='Saving...';
+  conf.classList.add('show');
+  const inputs={origin:c.origin,dest:c.dest,year:c.year,make:c.make,model:c.model};
+  const outputs=window._lastOutputs;
+  try{
+    const r=await fetch(VERCEL_URL+'/api/share',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({inputs,outputs})});
+    const d=await r.json();
+    const url='https://thedailyvroom.com/import-calculator/?c='+d.token;
+    window._shareUrl=url;
+    document.getElementById('shareLinkInput').value=url;
+    sheet.style.display='block';
+    conf.textContent='';
+    conf.classList.remove('show');
+    await document.fonts.ready;
+    const canvas=generateShareCard(c);
+    const existing=document.getElementById('shareCardPreview');
+    if(existing)existing.remove();
+    const wrapper=document.createElement('div');
+    wrapper.id='shareCardPreview';
+    wrapper.style.cssText='margin-top:12px;max-height:400px;overflow:hidden;';
+    const img=document.createElement('img');
+    img.src=canvas.toDataURL('image/png');
+    img.style.cssText='width:100%;height:auto;border:2px solid #111111;display:block;';
+    const dlBtn=document.createElement('button');
+    dlBtn.textContent='Download Card';
+    dlBtn.style.cssText='margin-top:8px;background:none;border:2px solid #111111;color:#111111;padding:10px 16px;min-height:44px;font-family:Archivo,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;width:100%;';
+    dlBtn.onclick=function(){
+      const a=document.createElement('a');
+      a.download='tdv-import-calc-'+c.make.toLowerCase().replace(/\s/g,'-')+'-'+c.year+'.png';
+      a.href=canvas.toDataURL('image/png');
+      a.click();
+    };
+    const xBtn=document.createElement('button');
+    xBtn.textContent='Share on X';
+    xBtn.style.cssText='margin-top:6px;background:none;border:2px solid #E63312;color:#E63312;padding:10px 16px;min-height:44px;font-family:Archivo,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;width:100%;';
+    xBtn.onclick=function(){
+      const sign=c.delta>=0?'+':'';
+      const tweet='This '+c.year+' '+c.make+' '+c.model+' is listed at '+c.sym+(c.purchaseVal||0).toLocaleString()+' in '+(c.originName||c.origin)+'. Landing it in '+(c.destName||c.dest)+'? '+c.sym+c.total.toLocaleString()+' all-in. That\'s '+sign+c.sym+c.delta.toLocaleString()+' in import costs you don\'t see on the listing.\n\n'+url;
+      window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(tweet),'_blank');
+    };
+    wrapper.appendChild(img);
+    wrapper.appendChild(dlBtn);
+    wrapper.appendChild(xBtn);
+    document.getElementById('shareBlock').appendChild(wrapper);
+  }catch(e){
+    conf.textContent='Could not generate link.';
+    setTimeout(()=>conf.classList.remove('show'),3000);
+  }
+}
+
+function copyShareLink(){
+  const input=document.getElementById('shareLinkInput');
+  const conf=document.getElementById('shareConfirmInline');
+  input.select();
+  try{navigator.clipboard.writeText(input.value).catch(()=>document.execCommand('copy'));}
+  catch(e){document.execCommand('copy');}
+  conf.textContent='Copied!';
+  conf.classList.add('show');
+  setTimeout(()=>conf.classList.remove('show'),2500);
+}
+
+function shareViaWhatsApp(){
+  const url=window._shareUrl;if(!url)return;
+  const c=window._lastCalc;
+  const msg='Check out this import calculation: '+c.year+' '+c.make+' '+c.model+' — landed cost '+c.sym+c.total.toLocaleString()+'. '+url;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function shareViaSMS(){
+  const url=window._shareUrl;if(!url)return;
+  const c=window._lastCalc;
+  const msg='Import calc: '+c.year+' '+c.make+' '+c.model+' landed cost '+c.sym+c.total.toLocaleString()+' — '+url;
+  window.open('sms:?body='+encodeURIComponent(msg));
+}
+
+function shareViaEmail(){
+  const url=window._shareUrl;if(!url)return;
+  const c=window._lastCalc;
+  const subject=c.year+' '+c.make+' '+c.model+' — Import Cost Breakdown';
+  const body='I ran the numbers on a '+c.year+' '+c.make+' '+c.model+' from '+c.originName+' to '+c.destName+'.\n\nTotal landed cost: '+c.sym+c.total.toLocaleString()+'\n\nSee the full breakdown here: '+url;
+  window.open('mailto:?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body));
+}
+
+function toggleBreakdown(){
+  const rows=document.querySelectorAll('.breakdown-row');
+  const btn=document.getElementById('breakdownToggle');
+  const isOpen=btn.dataset.open==='true';
+  rows.forEach(r=>r.style.display=isOpen?'none':'');
+  btn.textContent=isOpen?'View full cost breakdown':'Hide cost breakdown';
+  btn.dataset.open=isOpen?'false':'true';
+}
+
+function subscribeEmail(){
+  const email=document.getElementById('subEmail').value.trim();
+  const conf=document.getElementById('subConfirm');
+  if(!email||!email.includes('@')){conf.textContent='Please enter a valid email.';conf.style.color='#B21E00';return;}
+  conf.textContent='Subscribing...';
+  conf.style.color='#55595E';
+  fetch(VERCEL_URL+'/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})})
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.success){conf.textContent='You\'re in. Welcome to TDV.';conf.style.color='#1E7A45';document.getElementById('subEmail').value='';}
+      else{conf.textContent='Something went wrong. Try again.';conf.style.color='#B21E00';}
+    })
+    .catch(()=>{conf.textContent='Something went wrong. Try again.';conf.style.color='#B21E00';});
+}
+
+function notifyParentResize(){
+  const h=document.documentElement.scrollHeight;
+  window.parent.postMessage({source:'tdv-calculator',calculator:'import',iframeHeight:h},'*');
+}
+setInterval(notifyParentResize,300);
+
+function editCalc(){
+  const c=window._lastCalc;
+  document.getElementById('resultsPanel').style.display='none';
+  document.getElementById('formPanel').style.display='block';
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('stateTaxResult').innerHTML='';
+  document.getElementById('stateSel').value='';
+  document.getElementById('deltaLine').style.display='none';
+  document.getElementById('contextLine').style.display='none';
+  document.getElementById('breakdownToggle').style.display='none';
+  document.getElementById('shareBlock').style.display='none';
+  document.getElementById('shareSheet').style.display='none';
+  document.getElementById('shareLinkInput').value='';
+  document.getElementById('intentWrap').style.display='none';
+  document.getElementById('adjustHint').style.display='none';
+  window._shareUrl=null;
+  const h=document.getElementById('sharedHeader');
+  if(h)h.remove();
+  window.scrollTo(0,0);
+  if(c){
+    document.getElementById('origin').value=c.origin||'';
+    document.getElementById('dest').value=c.dest||'';
+    document.getElementById('year').value=c.year||'';
+    document.getElementById('price').value='';
+    if(c.make){
+      document.getElementById('make').value=c.make;
+      updateModels();
+      setTimeout(()=>{
+        const modelSel=document.getElementById('model');
+        if(modelSel)modelSel.value=c.model||'';
+      },50);
+    }
+  }
+}
+
+function resetCalc(){
+  document.getElementById('resultsPanel').style.display='none';
+  document.getElementById('formPanel').style.display='block';
+  document.getElementById('errMsg').style.display='none';
+  document.getElementById('stateTaxResult').innerHTML='';
+  document.getElementById('stateSel').value='';
+  document.getElementById('deltaLine').style.display='none';
+  document.getElementById('contextLine').style.display='none';
+  document.getElementById('breakdownToggle').style.display='none';
+  document.getElementById('shareBlock').style.display='none';
+  document.getElementById('shareSheet').style.display='none';
+  document.getElementById('shareLinkInput').value='';
+  document.getElementById('intentWrap').style.display='none';
+  document.getElementById('adjustHint').style.display='none';
+  window._shareUrl=null;
+  const h=document.getElementById('sharedHeader');
+ window.scrollTo(0,0);
+  window.parent.postMessage({scrollToTop:true},'*');
+  if(h)h.remove();
+}
+</script>
+  <div class="built-by">Built by <a href="https://feridanis.com" target="_blank">Feridanis</a></div>
+</body>
+</html>
