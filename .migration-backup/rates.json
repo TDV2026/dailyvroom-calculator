@@ -1,0 +1,254 @@
+{
+  "updated": "2026-03-29",
+  "note": "Update this file when any tariff, VAT, or fee changes. Exchange rates are fetched live from ECB - do not add them here. Update the 'updated' date whenever you make changes.",
+
+  "import_duty": {
+    "US": {
+      "base": 0.025,
+      "section_232": 0.25,
+      "total_non_exempt": 0.275,
+      "exempt_age_years": 25,
+      "exempt_year_as_of_2026": 2001,
+      "note": "2.5% base + 25% Section 232 steel/aluminum tariff on all non-exempt vehicles. 25-year rule waives EPA/DOT compliance only - Section 232 still applies to exempt vehicles.",
+      "source": "CBP + Federal Register"
+    },
+    "UK": {
+      "from_eu": 0.0,
+      "from_non_eu": 0.065,
+      "note": "0% duty on EU origin vehicles under UK-EU Trade and Cooperation Agreement. 6.5% on all other origins including Japan, US, Australia.",
+      "source": "HMRC Trade Tariff"
+    },
+    "DE": {
+      "from_outside_eu": 0.065,
+      "from_within_eu": 0.0,
+      "note": "EU common external tariff 6.5% on passenger vehicles from outside EU. 0% within EU single market.",
+      "source": "EU Commission"
+    },
+    "FR": {
+      "from_outside_eu": 0.065,
+      "from_within_eu": 0.0,
+      "note": "EU common external tariff 6.5%. 0% within EU.",
+      "source": "EU Commission"
+    },
+    "NL": {
+      "from_outside_eu": 0.065,
+      "from_within_eu": 0.0,
+      "note": "EU common external tariff 6.5%. 0% within EU.",
+      "source": "EU Commission"
+    },
+    "AU": {
+      "base": 0.05,
+      "lct_threshold_aud": 76950,
+      "lct_rate": 0.33,
+      "gst": 0.10,
+      "note": "5% customs duty on CIF value + 10% GST on (CIF + duty) + 33% Luxury Car Tax on value above AUD 76,950 threshold. LCT threshold adjusted annually by ATO.",
+      "source": "Australian Border Force + ATO"
+    },
+    "CA": {
+      "from_us_mx": 0.0,
+      "from_other": 0.061,
+      "note": "0% duty on USMCA origin vehicles (US, Mexico). 6.1% on all other origins including UK, EU, Japan, Australia. RIV fee $195 CAD applies to all imports.",
+      "source": "CBSA"
+    },
+    "JP": {
+      "base": 0.0,
+      "consumption_tax": 0.10,
+      "note": "Japan applies 0% import duty on passenger vehicles. 10% consumption tax applies on the full value.",
+      "source": "Japan Customs"
+    },
+    "IT": {
+      "from_outside_eu": 0.065,
+      "from_within_eu": 0.0,
+      "note": "EU common external tariff 6.5%. 0% within EU.",
+      "source": "EU Commission"
+    },
+    "SE": {
+      "from_outside_eu": 0.065,
+      "from_within_eu": 0.0,
+      "note": "EU common external tariff 6.5%. 0% within EU. Sweden is EU member.",
+      "source": "EU Commission"
+    },
+    "CH": {
+      "base": 0.075,
+      "note": "Switzerland is not EU. 7.5% import duty on passenger vehicles from all origins. Switzerland has bilateral agreements with EU but full tariffs still apply on vehicles.",
+      "source": "Swiss Federal Customs Administration"
+    }
+  },
+
+  "vat_and_sales_tax": {
+    "US": {
+      "federal_vat": 0,
+      "note": "No federal VAT in the US. State sales tax 0-10% applied at point of registration, not at import."
+    },
+    "UK": {
+      "vat": 0.20,
+      "note": "20% VAT on CIF value plus import duty."
+    },
+    "DE": {
+      "vat": 0.19,
+      "note": "19% German VAT (Mehrwertsteuer) on CIF plus duty."
+    },
+    "FR": {
+      "vat": 0.20,
+      "note": "20% French TVA on CIF plus duty."
+    },
+    "NL": {
+      "vat": 0.21,
+      "note": "21% Dutch BTW on CIF plus duty. Highest standard VAT in EU."
+    },
+    "IT": {
+      "vat": 0.22,
+      "note": "22% Italian IVA on CIF plus duty."
+    },
+    "SE": {
+      "vat": 0.25,
+      "note": "25% Swedish MOMS on CIF plus duty. Highest VAT in calculator."
+    },
+    "AU": {
+      "gst": 0.10,
+      "note": "10% GST on CIF value plus duty. Luxury Car Tax is additional and separate."
+    },
+    "CA": {
+      "gst": 0.05,
+      "hst_note": "5% federal GST. Provincial sales tax varies: ON 8%, BC 7%, QC 9.975%, AB 0%. HST applies in some provinces.",
+      "note": "Budget 13% combined federal+provincial as a safe estimate for Ontario/BC."
+    },
+    "JP": {
+      "consumption_tax": 0.10,
+      "note": "10% Japanese consumption tax on full vehicle value."
+    },
+    "CH": {
+      "vat": 0.081,
+      "note": "8.1% Swiss VAT (MWST). Lower than EU."
+    }
+  },
+
+  "roro_freight_usd": {
+    "UK_to_US": { "min": 1800, "max": 2400, "note": "Southampton or Tilbury to Newark, Baltimore or Jacksonville. Standard RoRo." },
+    "UK_to_AU": { "min": 2500, "max": 3500, "note": "UK to Melbourne or Sydney via Suez Canal." },
+    "UK_to_JP": { "min": 2000, "max": 3000, "note": "UK to Yokohama." },
+    "UK_to_CA": { "min": 1800, "max": 2400, "note": "UK to Halifax or Vancouver." },
+    "UK_to_DE": { "min": 400, "max": 800, "note": "Short sea shipping UK to Bremerhaven or Zeebrugge." },
+    "UK_to_NL": { "min": 300, "max": 600, "note": "Short sea UK to Rotterdam." },
+    "EU_to_US": { "min": 1600, "max": 2200, "note": "Bremerhaven, Zeebrugge or Antwerp to US East Coast." },
+    "EU_to_AU": { "min": 2500, "max": 3500, "note": "Europe to Melbourne or Sydney." },
+    "EU_to_JP": { "min": 2000, "max": 3000, "note": "Europe to Yokohama." },
+    "EU_to_CA": { "min": 1600, "max": 2200, "note": "Europe to Halifax or Vancouver." },
+    "EU_to_UK": { "min": 300, "max": 700, "note": "Short sea Zeebrugge or Bremerhaven to UK." },
+    "JP_to_US_west": { "min": 1200, "max": 1800, "note": "Yokohama or Osaka to Los Angeles or Portland." },
+    "JP_to_US_east": { "min": 2000, "max": 2800, "note": "Japan to US East Coast via Panama Canal." },
+    "JP_to_UK": { "min": 2000, "max": 3000, "note": "Japan to Southampton." },
+    "JP_to_AU": { "min": 800, "max": 1400, "note": "Japan to Melbourne or Sydney. Short route." },
+    "JP_to_EU": { "min": 2000, "max": 3000, "note": "Japan to Bremerhaven or Zeebrugge." },
+    "JP_to_CA": { "min": 1200, "max": 1800, "note": "Japan to Vancouver." },
+    "AU_to_US": { "min": 2000, "max": 3000, "note": "Melbourne or Sydney to Los Angeles." },
+    "AU_to_UK": { "min": 2500, "max": 3500, "note": "Australia to Southampton via Suez." },
+    "AU_to_EU": { "min": 2500, "max": 3500, "note": "Australia to Bremerhaven or Zeebrugge." },
+    "AU_to_JP": { "min": 800, "max": 1400, "note": "Australia to Yokohama. Short route." },
+    "AU_to_CA": { "min": 2000, "max": 3000, "note": "Australia to Vancouver." },
+    "US_to_UK": { "min": 1800, "max": 2400, "note": "US East Coast to Southampton." },
+    "US_to_EU": { "min": 1600, "max": 2200, "note": "US East Coast to Bremerhaven or Zeebrugge." },
+    "US_to_AU": { "min": 2000, "max": 3000, "note": "Los Angeles to Melbourne or Sydney." },
+    "US_to_JP": { "min": 1200, "max": 1800, "note": "Los Angeles to Yokohama." },
+    "US_to_CA": { "min": 600, "max": 1200, "note": "US to Canada. Short haul, often trucked not shipped." },
+    "CA_to_US": { "min": 600, "max": 1200, "note": "Canada to US. Often trucked." },
+    "CA_to_UK": { "min": 1800, "max": 2400, "note": "Canada to Southampton." },
+    "CA_to_EU": { "min": 1600, "max": 2200, "note": "Canada to Bremerhaven." },
+    "ZA_to_US": { "min": 2500, "max": 3500, "note": "South Africa to US East Coast." },
+    "ZA_to_UK": { "min": 1500, "max": 2200, "note": "South Africa to Southampton." },
+    "ZA_to_EU": { "min": 1500, "max": 2200, "note": "South Africa to Bremerhaven." },
+    "ZA_to_AU": { "min": 2000, "max": 3000, "note": "South Africa to Melbourne." },
+    "CH_to_US": { "min": 1800, "max": 2400, "note": "Switzerland - ships from Bremerhaven or Zeebrugge to US." },
+    "SE_to_US": { "min": 1800, "max": 2400, "note": "Sweden - ships from Gothenburg or Bremerhaven to US." },
+    "default": { "min": 2000, "max": 3000, "note": "Estimated for unlisted route. Verify with freight forwarder." }
+  },
+
+  "port_and_broker_usd": {
+    "US": { "min": 900, "max": 1200, "note": "CBP entry, ISF filing, customs broker fee, port handling." },
+    "UK": { "min": 400, "max": 700, "note": "HMRC clearance, customs agent, port handling." },
+    "DE": { "min": 400, "max": 700, "note": "German customs clearance and agent fees." },
+    "FR": { "min": 400, "max": 700, "note": "French customs clearance." },
+    "NL": { "min": 400, "max": 700, "note": "Dutch customs. Rotterdam is efficient." },
+    "AU": { "min": 600, "max": 900, "note": "ABF clearance, customs broker, AQIS biosecurity inspection." },
+    "CA": { "min": 500, "max": 800, "note": "CBSA clearance, customs broker, RIV registration." },
+    "JP": { "min": 500, "max": 900, "note": "Japan Customs clearance, agent fees." },
+    "default": { "min": 500, "max": 900, "note": "Estimated. Verify with local customs broker." }
+  },
+
+  "final_mile_usd": {
+    "US": { "min": 400, "max": 700, "note": "Port to door, average 200-400 miles inland. Florida/Texas ports cheapest." },
+    "UK": { "min": 200, "max": 450, "note": "Southampton to most UK destinations." },
+    "DE": { "min": 200, "max": 400, "note": "Bremerhaven to most German destinations." },
+    "FR": { "min": 250, "max": 450, "note": "Port to French destination." },
+    "NL": { "min": 150, "max": 350, "note": "Rotterdam is central. Short final mile." },
+    "AU": { "min": 300, "max": 600, "note": "Melbourne/Sydney port to destination." },
+    "CA": { "min": 300, "max": 600, "note": "Halifax or Vancouver to destination." },
+    "JP": { "min": 200, "max": 500, "note": "Yokohama to destination in Japan." },
+    "default": { "min": 300, "max": 600, "note": "Estimated." }
+  },
+
+  "marine_insurance_rate": 0.01,
+  "storage_per_month_usd": 200,
+
+  "compliance": {
+    "US_non_exempt": {
+      "epa_dot_min": 4000,
+      "epa_dot_max": 8000,
+      "note": "EPA emissions and DOT Federal Motor Vehicle Safety Standards compliance. Varies hugely by car age, make, and modifications needed. Get quote from certified Registered Importer."
+    },
+    "US_exempt_25yr": {
+      "registration_min": 200,
+      "registration_max": 600,
+      "note": "Title and state registration only. No EPA/DOT compliance required."
+    },
+    "UK": {
+      "iva_test": 456,
+      "dvla_registration": 55,
+      "note": "Individual Vehicle Approval test GBP 456 for non-type-approved vehicles. DVLA registration GBP 55. MOT required before road use."
+    },
+    "AU": {
+      "raws_min": 2000,
+      "raws_max": 5000,
+      "note": "Registered Automotive Workshop Scheme compliance. Must use RAWS-approved workshop. Varies by state and vehicle."
+    },
+    "CA": {
+      "riv_fee_cad": 195,
+      "transport_canada_note": "Transport Canada safety compliance required. RIV fee CAD 195.",
+      "note": "Not all vehicles qualify. Check CBSA admissibility list first."
+    },
+    "JP": {
+      "shaken_min": 1000,
+      "shaken_max": 2000,
+      "note": "Vehicle inspection (Shaken) required. Costs vary by vehicle age and condition."
+    },
+    "DE": {
+      "tuv_min": 200,
+      "tuv_max": 600,
+      "note": "TUV or DEKRA inspection required. EU type approval simplifies process for EU-origin vehicles."
+    },
+    "FR": {
+      "ct_min": 200,
+      "ct_max": 500,
+      "note": "Controle Technique required. Certificate of Conformity needed for non-EU vehicles."
+    },
+    "CH": {
+      "mfk_min": 300,
+      "mfk_max": 800,
+      "note": "MFK (Motorfahrzeugkontrolle) inspection. Swiss standards apply."
+    }
+  },
+
+  "special_rules": {
+    "US_rhd_allowed_states": ["Florida", "Texas", "Oregon", "Montana", "Kansas", "New Mexico"],
+    "US_rhd_banned_states": ["California"],
+    "US_rhd_note": "RHD registration varies by state. Florida, Texas, Oregon, Montana are most commonly used by importers.",
+    "japan_required_docs": ["Shaaken certificate (vehicle inspection)", "Export certificate", "Deregistration document (Yushutsu Shomeisho)", "Bill of sale"],
+    "uk_required_docs": ["V5C logbook", "MOT certificate (if applicable)", "Bill of sale", "DVLA export notification"],
+    "eu_required_docs": ["Registration document (Carte Grise / Zulassungsbescheinigung etc)", "Bill of sale", "Certificate of Conformity if available"],
+    "us_export_docs": ["US Certificate of Title", "Bill of sale", "Odometer disclosure statement", "EPA form 3520-1 if applicable"],
+    "au_required_docs": ["Registration papers", "Roadworthy certificate", "Bill of sale", "JEVIC inspection certificate for Japanese imports"],
+    "ca_required_docs": ["Title or ownership document", "Bill of sale", "Odometer declaration", "Safety standards certificate"],
+    "zh_note": "South African vehicles may have import restrictions in certain markets. Verify admissibility before purchase.",
+    "general_note": "Always engage a licensed customs broker in the destination country. Requirements change. Verify current rules before committing to purchase."
+  }
+}

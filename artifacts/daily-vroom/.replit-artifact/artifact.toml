@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "The Daily Vroom"
+version = "1.0.0"
+id = "artifacts/daily-vroom"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21691
+
+[services.development]
+run = "pnpm --filter @workspace/daily-vroom run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/daily-vroom", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/daily-vroom/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21691"
+BASE_PATH = "/"
