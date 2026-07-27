@@ -1,14 +1,9 @@
 {
-  "buildCommand": "pnpm --filter @workspace/daily-vroom run build",
-  "outputDirectory": "artifacts/daily-vroom/dist/public",
-  "installCommand": "pnpm install",
-  "framework": null,
-  "build": {
-    "env": {
-      "BASE_PATH": "/"
-    }
-  },
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/shipping", "destination": "/shipping.html" },
+    { "source": "/shipping-calculator", "destination": "/shipping.html" },
+    { "source": "/shipping-calculator/", "destination": "/shipping.html" },
+    { "source": "/import-calculator", "destination": "/index.html" },
+    { "source": "/import-calculator/", "destination": "/index.html" }
   ]
 }
