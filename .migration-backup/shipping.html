@@ -4,101 +4,209 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>US Vehicle Shipping Calculator — The Daily Vroom</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Mono:wght@400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
+/* ===== SPEEDFORM =============================================
+   Matches index.html exactly. Class names unchanged.
+   ============================================================= */
+:root{
+  --paper:#FAFAF8;
+  --surface:#FFFFFF;
+  --ink:#111111;
+  --text:#3A3A3A;
+  --muted:#55595E;
+  --ghost:#8A8E93;
+  --rule:#D9D9D4;
+  --accent:#E63312;
+  --accent-hi:#C52A0D;
+  --error:#B21E00;
+  --go:#1E7A45;
+  --amber:#7A5C00;
+  --cut:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-y:auto;}
-.mast{padding:20px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(26,20,16,0.1);}
-.mast-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:400;letter-spacing:0.01em;}
-.mast-name em{font-style:italic;color:#c4603a;}
-.mast-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(26,20,16,0.35);border:1px solid rgba(26,20,16,0.15);padding:4px 10px;}
-.mast-sub{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(26,20,16,0.3);}
-.nav-tabs{display:flex;gap:0;border-bottom:1px solid rgba(26,20,16,0.1);max-width:680px;margin:0 auto;padding:0 24px;}
-.nav-tab{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(26,20,16,0.35);padding:12px 20px;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.15s;text-decoration:none;display:inline-block;}
-.nav-tab:hover{color:rgba(26,20,16,0.6);}
-.nav-tab.active{color:#c4603a;border-bottom-color:#c4603a;}
-.hero{max-width:600px;margin:0 auto;padding:32px 24px 24px;text-align:center;}
-.hero-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:#c4603a;margin-bottom:18px;}
-.hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,4vw,44px);font-weight:400;line-height:1.18;margin-bottom:14px;color:#1a1410;}
-.hero h1 em{font-style:italic;color:#c4603a;}
-.hero-sub{font-size:13px;line-height:1.75;color:rgba(26,20,16,0.5);max-width:440px;margin:0 auto 8px;}
-.hero-caveat{font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.35);max-width:440px;margin:0 auto 20px;line-height:1.6;}
-.how-link{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(26,20,16,0.4);border-bottom:1px solid rgba(26,20,16,0.2);padding-bottom:2px;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;transition:color 0.15s;}
-.how-link:hover{color:rgba(26,20,16,0.7);}
-.hrule{max-width:680px;margin:0 auto;height:1px;background:rgba(26,20,16,0.1);}
+body{background:var(--paper);color:var(--text);font-family:'Inter',sans-serif;font-weight:400;min-height:100vh;overflow-y:auto;-webkit-font-smoothing:antialiased;}
+
+/* ---------- masthead ---------- */
+.mast{background:var(--ink);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.mast-name{font-family:'Archivo',sans-serif;font-size:19px;font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:#fff;}
+.mast-name em{font-style:normal;color:var(--accent);}
+.mast-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.28);padding:4px 10px;}
+.mast-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;}
+.how-link{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#fff;background:none;border:none;border-bottom:2px solid var(--accent);padding:0 0 3px;cursor:pointer;transition:color 0.15s;}
+.how-link:hover{color:var(--accent);}
+.live-badge{display:inline-flex;align-items:center;gap:7px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:#fff;padding:5px 12px;border:1px solid rgba(255,255,255,0.28);background:none;}
+.live-dot{width:6px;height:6px;background:var(--accent);display:inline-block;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+
+/* ---------- tabs ---------- */
+.nav-tabs{display:flex;gap:0;border-bottom:2px solid var(--ink);max-width:680px;margin:0 auto;padding:0 24px;}
+.nav-tab{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:13px 20px;border:none;background:none;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:color 0.15s;text-decoration:none;display:inline-block;}
+.nav-tab:hover{color:var(--ink);}
+.nav-tab.active{color:var(--ink);border-bottom-color:var(--accent);}
+
+/* ---------- hero ---------- */
+.hero{max-width:680px;margin:0 auto;padding:48px 24px 32px;text-align:center;}
+.hero-label{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:18px;}
+.hero h1{font-family:'Archivo',sans-serif;font-size:clamp(30px,5vw,50px);font-weight:900;line-height:1.02;letter-spacing:-0.02em;text-transform:uppercase;margin-bottom:16px;color:var(--ink);}
+.hero h1 em{font-style:normal;color:var(--accent);}
+.hero-sub{font-size:15px;line-height:1.65;color:var(--text);max-width:460px;margin:0 auto 8px;}
+.hero-note{font-size:15px;line-height:1.65;color:var(--muted);max-width:460px;margin:10px auto 0;}
+.hero-caveat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);max-width:460px;margin:0 auto 20px;line-height:1.65;}
+.hrule{max-width:680px;margin:0 auto;height:1px;background:var(--rule);}
 .wrap{max-width:680px;margin:0 auto;padding:0 24px 72px;}
-.form-section{padding:28px 0 0;}
-.form-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(26,20,16,0.4);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
-.form-label::after{content:'';flex:1;height:1px;background:rgba(26,20,16,0.1);}
+
+/* ---------- form ---------- */
+.form-section{padding:32px 0 0;}
+.form-label{font-family:'Archivo',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.form-label::after{content:'';flex:1;height:2px;background:var(--ink);}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
 .mt{margin-top:12px;}
-.fi{display:flex;flex-direction:column;gap:5px;}
-.fi label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(26,20,16,0.45);}
-.fi input,.fi select,.fi textarea{background:#ffffff;border:1px solid rgba(26,20,16,0.15);color:#1a1410;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:300;padding:10px 12px;outline:none;width:100%;-webkit-appearance:none;appearance:none;transition:border-color 0.15s;}
-.fi textarea{resize:vertical;min-height:80px;line-height:1.5;}
-.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:#c4603a;}
-.fi input::placeholder,.fi textarea::placeholder{color:rgba(26,20,16,0.2);}
-.fi-hint{font-family:'DM Mono',monospace;font-size:10px;color:rgba(26,20,16,0.35);}
-.errtxt{font-family:'DM Mono',monospace;font-size:9px;color:#c47878;padding:10px;background:rgba(196,120,120,0.08);margin-top:8px;}
-.calc-btn{width:100%;margin-top:20px;padding:13px;background:#c4603a;color:#f5f0e8;border:none;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
-.calc-btn:hover{background:#d4714b;}
-.ldw{padding:52px 0;text-align:center;}
-.ldlbl{font-family:'Playfair Display',serif;font-size:17px;font-style:italic;color:rgba(26,20,16,0.4);}
-.ldbar{width:140px;height:1px;background:rgba(26,20,16,0.1);margin:18px auto 0;position:relative;overflow:hidden;}
-.ldbar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:1px;background:#c4603a;animation:ldsweep 1.6s ease-in-out infinite;}
+.fi{display:flex;flex-direction:column;gap:6px;}
+.fi label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+.fi input,.fi select,.fi textarea{background:var(--surface);border:2px solid var(--ink);border-radius:0;color:var(--ink);font-family:'Inter',sans-serif;font-size:16px;font-weight:400;padding:11px 12px;min-height:44px;outline:none;width:100%;-webkit-appearance:none;appearance:none;transition:border-color 0.15s;}
+.fi textarea{resize:vertical;min-height:88px;line-height:1.5;}
+.fi input:focus,.fi select:focus,.fi textarea:focus{border-color:var(--accent);}
+.fi input::placeholder,.fi textarea::placeholder{color:var(--ghost);}
+.fi-hint{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.errtxt{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--error);padding:10px 12px;background:rgba(178,30,0,0.07);border-left:3px solid var(--error);margin-top:8px;}
+
+/* ---------- buttons ---------- */
+.calc-btn{width:100%;margin-top:20px;min-height:48px;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:0;font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;clip-path:var(--cut);}
+.calc-btn:hover{background:var(--accent-hi);}
+.form-footnote{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;line-height:1.65;text-align:center;}
+
+/* ---------- loading ---------- */
+.ldw{padding:56px 0;text-align:center;}
+.ldlbl{font-family:'Archivo',sans-serif;font-size:16px;font-weight:800;font-style:normal;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink);}
+.ldbar{width:140px;height:2px;background:var(--rule);margin:18px auto 0;position:relative;overflow:hidden;}
+.ldbar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:3px;background:var(--accent);animation:ldsweep 1.6s ease-in-out infinite;}
 @keyframes ldsweep{0%{left:-100%}100%{left:100%}}
-.res-route{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(26,20,16,0.35);padding:28px 0 6px;}
-.res-title{font-family:'Playfair Display',serif;font-size:clamp(16px,2vw,20px);font-weight:400;color:rgba(26,20,16,0.85);padding-bottom:20px;border-bottom:1px solid rgba(26,20,16,0.1);}
-.crow{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0;border-bottom:1px solid rgba(26,20,16,0.08);gap:16px;}
-.clbl{font-size:15px;color:rgba(26,20,16,0.85);flex:1;line-height:1.3;}
-.csub{display:block;font-family:'DM Mono',monospace;font-size:11px;color:rgba(26,20,16,0.45);margin-top:3px;}
-.cval{font-family:'DM Mono',monospace;font-size:15px;color:#1a1410;white-space:nowrap;}
-.totrow{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0;border-top:1px solid rgba(26,20,16,0.15);margin-top:2px;gap:16px;}
-.tot-lbl{font-family:'Playfair Display',serif;font-size:18px;font-style:italic;color:#1a1410;}
-.tot-val{font-family:'DM Mono',monospace;font-size:22px;color:#c4603a;}
-.price-note{font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.35);padding:6px 0 0;line-height:1.6;}
-.dist-line{font-family:'DM Mono',monospace;font-size:10px;color:rgba(26,20,16,0.4);padding:4px 0 0;}
-.toggle-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid rgba(26,20,16,0.12);margin:16px 0 0;}
-.tog-btn{background:none;border:none;padding:16px;cursor:pointer;text-align:left;transition:background 0.15s;border-right:1px solid rgba(26,20,16,0.12);}
+
+/* ---------- results ---------- */
+.res-route{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);padding:32px 0 6px;}
+.res-title{font-family:'Archivo',sans-serif;font-size:clamp(16px,2vw,20px);font-weight:800;letter-spacing:-0.01em;text-transform:uppercase;color:var(--ink);padding-bottom:18px;border-bottom:2px solid var(--ink);}
+.crow{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 0 12px 12px;border-bottom:1px solid var(--rule);border-left:3px solid var(--accent);gap:16px;}
+.clbl{font-family:'Inter',sans-serif;font-size:15px;font-weight:400;color:var(--text);flex:1;line-height:1.35;}
+.csub{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5;}
+.cval{font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap;}
+.totrow{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:var(--ink);margin-top:12px;gap:16px;clip-path:var(--cut);}
+.tot-lbl{font-family:'Archivo',sans-serif;font-size:13px;font-weight:800;font-style:normal;letter-spacing:0.08em;text-transform:uppercase;color:#fff;}
+.tot-val{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px;font-variant-numeric:tabular-nums;color:var(--accent);}
+.price-note{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);padding:10px 0 0;line-height:1.65;}
+.dist-line{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--ink);padding:6px 0 0;}
+
+/* ---------- open vs enclosed toggle ---------- */
+.toggle-grid{display:grid;grid-template-columns:1fr 1fr;border:2px solid var(--ink);margin:20px 0 0;}
+.tog-btn{background:none;border:none;border-radius:0;padding:18px;cursor:pointer;text-align:left;transition:background 0.15s;border-right:2px solid var(--ink);}
 .tog-btn:last-child{border-right:none;}
-.tog-btn.active{background:rgba(196,96,58,0.06);}
-.tog-kicker{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(26,20,16,0.35);margin-bottom:4px;}
-.tog-kicker.active{color:#c4603a;}
-.tog-price{display:block;font-family:'DM Mono',monospace;font-size:24px;color:rgba(26,20,16,0.3);}
-.tog-price.active{color:#c4603a;}
-.tog-sub{display:block;font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.35);margin-top:4px;}
-.explain-box{padding:12px 14px;background:rgba(26,20,16,0.03);border:1px solid rgba(26,20,16,0.08);margin:12px 0;font-family:'DM Mono',monospace;font-size:10px;line-height:1.7;color:rgba(26,20,16,0.5);}
-.rec-badge{padding:12px;background:rgba(196,162,74,0.08);border:1px solid rgba(196,162,74,0.2);margin:8px 0;font-family:'DM Mono',monospace;font-size:10px;color:#8a6e1a;line-height:1.6;}
-.book-wrap{margin-top:24px;padding:20px;background:rgba(196,96,58,0.04);border:1px solid rgba(196,96,58,0.2);}
-.book-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#c4603a;margin-bottom:12px;}
-.book-fields{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
-.book-btn{width:100%;padding:13px;background:#c4603a;color:#f5f0e8;border:none;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;}
-.book-btn:hover{background:#d4714b;}
-.book-btn:disabled{background:rgba(196,96,58,0.4);cursor:not-allowed;}
-.book-note{font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.35);margin-top:10px;line-height:1.6;}
-.confirm-wrap{margin-top:24px;padding:20px;background:rgba(122,170,138,0.06);border:1px solid rgba(122,170,138,0.2);}
-.confirm-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#3d7a5a;margin-bottom:10px;}
-.confirm-text{font-size:13px;line-height:1.75;color:rgba(26,20,16,0.6);margin-bottom:14px;}
-.confirm-order{font-family:'DM Mono',monospace;font-size:11px;color:rgba(26,20,16,0.4);}
-.btnr{background:none;border:1px solid rgba(26,20,16,0.15);color:rgba(26,20,16,0.45);padding:7px 16px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;margin-top:16px;}
-.btnr:hover{border-color:#c4603a;color:#c4603a;}
-.pgft{max-width:680px;margin:0 auto;padding:16px 24px 32px;border-top:1px solid rgba(26,20,16,0.1);display:flex;justify-content:space-between;}
-.pgft p{font-family:'DM Mono',monospace;font-size:10px;color:rgba(26,20,16,0.25);}
-.live-badge{display:inline-flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(61,122,90,0.7);padding:4px 10px;border:1px solid rgba(61,122,90,0.12);background:none;}
-.live-dot{width:5px;height:5px;border-radius:50%;background:#3d7a5a;display:inline-block;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(26,20,16,0.5);z-index:1000;overflow-y:auto;}
+.tog-btn.active{background:rgba(230,51,18,0.06);}
+.tog-kicker{display:block;font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.tog-kicker.active{color:var(--accent);}
+.tog-price{display:block;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:26px;font-variant-numeric:tabular-nums;color:var(--ghost);}
+.tog-price.active{color:var(--accent);}
+.tog-sub{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
+.explain-box{padding:14px;background:var(--surface);border:1px solid var(--rule);border-left:3px solid var(--ink);margin:12px 0;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.7;color:var(--text);}
+.rec-badge{padding:14px;background:rgba(200,160,40,0.1);border:2px solid rgba(200,160,40,0.4);margin:10px 0;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--amber);line-height:1.65;}
+
+/* ---------- how it works ---------- */
+.hiw{margin-top:28px;padding:24px;border:2px solid var(--ink);background:var(--surface);}
+.hiw-kicker{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:22px;}
+.hiw-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;}
+.hiw-step{padding:0 16px;border-right:1px solid var(--rule);}
+.hiw-step:first-child{padding-left:0;}
+.hiw-step:last-child{padding-right:0;border-right:none;}
+.hiw-icon{width:44px;height:44px;background:var(--paper);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.hiw-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.hiw-num{width:20px;height:20px;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#fff;flex-shrink:0;}
+.hiw-title{font-family:'Archivo',sans-serif;font-size:12px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink);}
+.hiw-body{font-family:'Inter',sans-serif;font-size:13px;font-weight:400;color:var(--text);line-height:1.6;}
+.hiw-foot{margin-top:22px;padding-top:18px;border-top:2px solid var(--ink);text-align:center;}
+.hiw-foot span{font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;font-style:normal;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink);}
+
+/* ---------- booking ---------- */
+.book-wrap{margin-top:24px;padding:22px;background:var(--surface);border:2px solid var(--ink);}
+.book-kicker{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+.book-fields{display:flex;flex-direction:column;gap:12px;margin-bottom:16px;}
+.book-btn{width:100%;min-height:48px;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:0;font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:background 0.15s;clip-path:var(--cut);}
+.book-btn:hover{background:var(--accent-hi);}
+.book-btn:disabled{background:var(--ghost);cursor:not-allowed;}
+.book-note{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;line-height:1.65;}
+.book-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px;}
+.info-box{margin-top:16px;padding:14px;background:var(--paper);border:1px solid var(--rule);border-left:3px solid var(--ink);}
+.info-box-head{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;}
+.info-box-body{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text);line-height:1.85;}
+.info-box.warn{background:rgba(200,160,40,0.08);border:1px solid rgba(200,160,40,0.4);border-left:3px solid rgba(200,160,40,0.9);}
+.info-box.warn .info-box-head{color:var(--amber);}
+.sub-check{display:flex;align-items:flex-start;gap:10px;margin-top:16px;}
+.sub-check input{width:16px;height:16px;flex-shrink:0;accent-color:var(--accent);margin-top:2px;cursor:pointer;}
+.sub-check label{font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;line-height:1.6;}
+
+/* ---------- confirmation ---------- */
+.confirm-wrap{margin-top:24px;padding:22px;background:rgba(30,122,69,0.08);border:2px solid rgba(30,122,69,0.4);}
+.confirm-kicker{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#145C34;margin-bottom:10px;}
+.confirm-text{font-size:15px;line-height:1.65;color:var(--text);margin-bottom:14px;}
+.confirm-order{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--ink);}
+
+/* ---------- share ---------- */
+.share-btn{background:none;border:2px solid var(--accent);border-radius:0;color:var(--accent);padding:10px 16px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;white-space:nowrap;}
+.share-btn:hover{background:var(--accent);color:#fff;}
+.share-confirm{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500;color:var(--go);opacity:0;transition:opacity 0.3s;}
+.share-link-input{flex:1;background:var(--surface);border:2px solid var(--ink);border-radius:0;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:10px;min-height:44px;color:var(--ink);outline:none;}
+.share-copy-btn{background:none;border:2px solid var(--accent);border-radius:0;color:var(--accent);padding:10px 14px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.share-copy-btn:hover{background:var(--accent);color:#fff;}
+
+/* ---------- reset ---------- */
+.btnr{background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:9px 16px;min-height:44px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;margin-top:16px;transition:all 0.15s;}
+.btnr:hover{background:var(--ink);color:#fff;}
+
+/* ---------- footer ---------- */
+.pgft{max-width:680px;margin:0 auto;padding:16px 24px 32px;border-top:1px solid var(--rule);display:flex;justify-content:space-between;}
+.pgft p{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.pgft a{color:var(--muted);text-decoration:none;}
+.pgft a:hover{color:var(--accent);}
+.built-by{text-align:center;padding:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ghost);}
+.built-by a{color:var(--muted);text-decoration:none;}
+.built-by a:hover{color:var(--accent);}
+
+/* ---------- modal ---------- */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,17,17,0.6);z-index:1000;overflow-y:auto;}
 .modal-overlay.open{display:block;}
-.modal{background:#f5f0e8;max-width:600px;margin:40px auto;padding:36px 32px;position:relative;border:1px solid rgba(26,20,16,0.1);}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(26,20,16,0.35);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;}
-.modal-close:hover{color:#1a1410;}
-.modal-kicker{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:#c4603a;margin-bottom:24px;}
-.faq-item{padding:0 0 24px;border-bottom:1px solid rgba(26,20,16,0.08);margin-bottom:24px;}
+.modal{background:var(--paper);max-width:640px;margin:40px auto;padding:36px 32px;position:relative;border:2px solid var(--ink);}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:2px solid var(--ink);border-radius:0;color:var(--ink);padding:7px 12px;font-family:'Archivo',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;transition:all 0.15s;}
+.modal-close:hover{background:var(--ink);color:#fff;}
+.modal-kicker{font-family:'Archivo',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:24px;}
+.faq-item{padding:0 0 22px;border-bottom:1px solid var(--rule);margin-bottom:22px;}
 .faq-item:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
-.faq-q{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:#1a1410;margin-bottom:10px;}
-.faq-a{font-size:13px;line-height:1.75;color:rgba(26,20,16,0.55);}
-@media(max-width:560px){.g2,.g3{grid-template-columns:1fr;}.hiw-grid{grid-template-columns:1fr!important;}.hiw-step{border-right:none!important;border-bottom:1px solid rgba(26,20,16,0.08);padding:0 0 16px 0!important;margin-bottom:16px;}.mast{padding:14px 16px;}.mast-tag{display:none;}.wrap,.pgft{padding-left:16px;padding-right:16px;}.hero{padding:36px 16px 28px;}.hero h1{font-size:28px;}.nav-tabs{padding:0 16px;}.nav-tab{padding:10px 12px;font-size:8px;}.modal{margin:0;min-height:100vh;padding:24px 16px;}}
+.faq-q{font-family:'Archivo',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.02em;text-transform:uppercase;color:var(--ink);margin-bottom:10px;}
+.faq-a{font-size:15px;line-height:1.65;color:var(--text);}
+
+/* ---------- mobile ---------- */
+@media(max-width:560px){
+  .g2,.g3{grid-template-columns:1fr;}
+  .hiw-grid{grid-template-columns:1fr;}
+  .hiw-step{border-right:none;border-bottom:1px solid var(--rule);padding:0 0 18px 0;margin-bottom:18px;}
+  .hiw-step:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+  .hiw{padding:18px;}
+  .mast{padding:14px 16px;gap:10px;}
+  .mast-tag{display:none;}
+  .wrap,.pgft{padding-left:16px;padding-right:16px;}
+  .hero{padding:36px 16px 28px;}
+  .hero h1{font-size:30px;}
+  .nav-tabs{padding:0 16px;}
+  .nav-tab{padding:13px 14px;font-size:10px;letter-spacing:0.05em;}
+  .toggle-grid{grid-template-columns:1fr;}
+  .tog-btn{border-right:none;border-bottom:2px solid var(--ink);}
+  .tog-btn:last-child{border-bottom:none;}
+  .totrow{flex-wrap:wrap;gap:6px;}
+  .tot-lbl{width:100%;}
+  .tot-val{font-size:28px;}
+  .pgft{flex-direction:column;gap:6px;}
+  .modal{margin:0;min-height:100vh;padding:24px 16px;border:none;}
+}
 </style>
 </head>
 <body>
@@ -153,7 +261,7 @@ body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weig
 <header class="mast">
   <div class="mast-name">The Daily <em>Vroom</em></div>
   <div class="mast-tag">US Shipping Calculator</div>
-  <button class="how-link" onclick="openFaq()" style="font-size:9px;letter-spacing:0.12em;">How does this work?</button>
+  <button class="how-link" onclick="openFaq()">How does this work?</button>
   <div class="mast-sub" id="liveBadge"></div>
 </header>
 <nav class="nav-tabs">
@@ -164,7 +272,7 @@ body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weig
   <div class="hero-label">Door to Door</div>
   <h1>What does it cost to <em>ship</em> that car?</h1>
   <p class="hero-sub">Live shipping quotes for US domestic transport. Open and enclosed options.</p>
-  <p style="font-family:'DM Sans',sans-serif;font-size:13px;color:rgba(26,20,16,0.45);margin-top:10px;">Instant live quote. No email address required. We hate that too.</p>
+  <p class="hero-note">Instant live quote. No email address required. We hate that too.</p>
 </section>
 <div class="hrule"></div>
 <div class="wrap">
@@ -209,7 +317,7 @@ body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weig
     </div>
     <div id="errMsg" class="errtxt" style="display:none"></div>
     <button class="calc-btn" onclick="getQuotes()">Get Instant Shipping Quote</button>
-    <p style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.35);margin-top:10px;line-height:1.6;text-align:center;">Most shipments collect and deliver to your exact location. For restricted access areas, RunBuggy will arrange the nearest accessible point with you directly.</p>
+    <p class="form-footnote">Most shipments collect and deliver to your exact location. For restricted access areas, RunBuggy will arrange the nearest accessible point with you directly.</p>
   </div>
 
   <div id="loadingPanel" style="display:none">
@@ -242,97 +350,92 @@ body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weig
     <div class="dist-line" id="distLine"></div>
     <div id="shareBlock" style="margin-top:16px;display:none;">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-    <button class="share-btn" onclick="shareQuote()" style="background:none;border:1px solid rgba(196,96,58,0.4);color:#c4603a;padding:8px 16px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Share This Quote</button>
-    <span id="shareConfirm" style="font-family:'DM Mono',monospace;font-size:9px;color:#3d7a5a;opacity:0;transition:opacity 0.3s;">Copied!</span>
+    <button class="share-btn" onclick="shareQuote()">Share This Quote</button>
+    <span id="shareConfirm" class="share-confirm">Copied!</span>
   </div>
   <div id="shareSheet" style="display:none;">
     <div style="display:flex;gap:8px;">
-      <input id="shareLinkInput" type="text" readonly style="flex:1;background:#fff;border:1px solid rgba(26,20,16,0.15);font-family:'DM Mono',monospace;font-size:11px;padding:8px 10px;color:#1a1410;outline:none;">
-      <button onclick="copyShareLink()" style="background:none;border:1px solid rgba(196,96,58,0.4);color:#c4603a;padding:8px 12px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Copy</button>
+      <input id="shareLinkInput" type="text" readonly class="share-link-input">
+      <button onclick="copyShareLink()" class="share-copy-btn">Copy</button>
     </div>
   </div>
 </div>
-    <div style="margin-top:28px;padding:20px 24px;border:1px solid rgba(26,20,16,0.1);background:#f5f0e8;">
-      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(26,20,16,0.35);margin-bottom:20px;">How it works</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;">
-        <div style="padding:0 16px 0 0;border-right:1px solid rgba(26,20,16,0.08);">
-          <div style="width:44px;height:44px;border-radius:50%;background:rgba(26,20,16,0.05);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(26,20,16,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+    <div class="hiw">
+      <div class="hiw-kicker">How it works</div>
+      <div class="hiw-grid">
+        <div class="hiw-step">
+          <div class="hiw-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
           </div>
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
-            <div style="width:18px;height:18px;border-radius:50%;background:#3d7a5a;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:#f5f0e8;flex-shrink:0;">1</div>
-            <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:#1a1410;">Get Your Quote</div>
+          <div class="hiw-head">
+            <div class="hiw-num">1</div>
+            <div class="hiw-title">Get Your Quote</div>
           </div>
-          <div style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;color:rgba(26,20,16,0.5);line-height:1.6;">Enter your route and vehicle details</div>
+          <div class="hiw-body">Enter your route and vehicle details</div>
         </div>
-        <div style="padding:0 16px;border-right:1px solid rgba(26,20,16,0.08);">
-          <div style="width:44px;height:44px;border-radius:50%;background:rgba(26,20,16,0.05);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(26,20,16,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <div class="hiw-step">
+          <div class="hiw-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           </div>
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
-            <div style="width:18px;height:18px;border-radius:50%;background:#3d7a5a;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:#f5f0e8;flex-shrink:0;">2</div>
-            <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:#1a1410;">Submit Request</div>
+          <div class="hiw-head">
+            <div class="hiw-num">2</div>
+            <div class="hiw-title">Submit Request</div>
           </div>
-          <div style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;color:rgba(26,20,16,0.5);line-height:1.6;">Send your shipment request directly to RunBuggy</div>
+          <div class="hiw-body">Send your shipment request directly to RunBuggy</div>
         </div>
-        <div style="padding:0 16px;border-right:1px solid rgba(26,20,16,0.08);">
-          <div style="width:44px;height:44px;border-radius:50%;background:rgba(26,20,16,0.05);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(26,20,16,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <div class="hiw-step">
+          <div class="hiw-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           </div>
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
-            <div style="width:18px;height:18px;border-radius:50%;background:#3d7a5a;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:#f5f0e8;flex-shrink:0;">3</div>
-            <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:#1a1410;">RunBuggy Confirms</div>
+          <div class="hiw-head">
+            <div class="hiw-num">3</div>
+            <div class="hiw-title">RunBuggy Confirms</div>
           </div>
-          <div style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;color:rgba(26,20,16,0.5);line-height:1.6;">Pickup scheduling and payment handled directly</div>
+          <div class="hiw-body">Pickup scheduling and payment handled directly</div>
         </div>
-        <div style="padding:0 0 0 16px;">
-          <div style="width:44px;height:44px;border-radius:50%;background:rgba(26,20,16,0.05);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(26,20,16,0.5)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        <div class="hiw-step">
+          <div class="hiw-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
           </div>
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
-            <div style="width:18px;height:18px;border-radius:50%;background:#3d7a5a;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;color:#f5f0e8;flex-shrink:0;">4</div>
-            <div style="font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:#1a1410;">Your Car Ships</div>
+          <div class="hiw-head">
+            <div class="hiw-num">4</div>
+            <div class="hiw-title">Your Car Ships</div>
           </div>
-          <div style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:300;color:rgba(26,20,16,0.5);line-height:1.6;">Track updates throughout transit</div>
+          <div class="hiw-body">Track updates throughout transit</div>
         </div>
       </div>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(26,20,16,0.08);text-align:center;">
-        <svg width="28" height="28" viewBox="0 0 40 40" fill="none" style="display:inline-block;vertical-align:middle;margin-right:8px;transform:scaleX(-1);">
-          <path d="M8 32 Q14 10 32 8" stroke="#3d7a5a" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M30 4 L32 8 L28 10" stroke="#3d7a5a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span style="font-family:'Playfair Display',serif;font-size:16px;font-style:italic;color:#3d7a5a;letter-spacing:0.01em;">One real quote. One trusted partner. Zero spam. Total clarity.</span>
+      <div class="hiw-foot">
+        <span>One real quote. One trusted partner. Zero spam. Total clarity.</span>
       </div>
     </div>
     <div class="book-wrap" id="bookWrap">
       <div class="book-kicker">Book this shipment</div>
-      <p style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.3);margin-bottom:14px;">Transport powered by RunBuggy</p>
+      <p class="book-meta">Transport powered by RunBuggy</p>
       <div class="book-fields">
         <div class="fi"><label>Full Name</label><input type="text" id="bookName" placeholder="Jane Smith"></div>
         <div class="fi"><label>Email</label><input type="email" id="bookEmail" placeholder="jane@example.com"></div>
         <div class="fi"><label>Phone</label><input type="tel" id="bookPhone" placeholder="+1 555 000 0000"></div>
         <div class="fi"><label>Anything else we should know? (optional)</label><textarea id="bookNotes" placeholder="Spare parts, extra wheels, access restrictions, anything relevant to pickup or delivery"></textarea></div>
       </div>
-      <p style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(26,20,16,0.4);line-height:1.6;margin-bottom:12px;">RunBuggy will contact you to confirm details and arrange payment. Nothing is charged here. No payment is collected on The Daily Vroom.</p>
+      <p class="book-note" style="margin-top:0;margin-bottom:12px;">RunBuggy will contact you to confirm details and arrange payment. Nothing is charged here. No payment is collected on The Daily Vroom.</p>
       <button class="book-btn" id="bookBtn" onclick="bookShipment()">Request Shipment</button>
-      <div style="margin-top:16px;padding:14px;background:rgba(26,20,16,0.03);border:1px solid rgba(26,20,16,0.08);">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:rgba(26,20,16,0.4);margin-bottom:10px;">What happens next</div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(26,20,16,0.45);line-height:1.8;">
+      <div class="info-box">
+        <div class="info-box-head">What happens next</div>
+        <div class="info-box-body">
           1. RunBuggy reviews your shipment request and confirms carrier availability<br>
           2. They contact you directly to arrange pickup and delivery details<br>
           3. Payment is handled securely by RunBuggy<br>
           4. You receive updates throughout transit
         </div>
       </div>
-      <div style="margin-top:16px;padding:14px;background:rgba(196,162,74,0.05);border:1px solid rgba(196,162,74,0.2);">
-        <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:#8a6e1a;margin-bottom:8px;">Reserve Service Note</div>
-        <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(26,20,16,0.5);line-height:1.8;">Not every move fits a standard mold. Your order may be routed to RunBuggy Reserve if it involves strict scheduling, specialty or collector vehicles, spare parts, whole-truck reservations, or multi-stop routes. If that happens, fares may be adjusted and their Reserve team will contact you directly to confirm details.</div>
+      <div class="info-box warn">
+        <div class="info-box-head">Reserve Service Note</div>
+        <div class="info-box-body">Not every move fits a standard mold. Your order may be routed to RunBuggy Reserve if it involves strict scheduling, specialty or collector vehicles, spare parts, whole-truck reservations, or multi-stop routes. If that happens, fares may be adjusted and their Reserve team will contact you directly to confirm details.</div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-top:14px;">
-        <input type="checkbox" id="shipSubscribe" checked style="width:16px;height:16px;flex-shrink:0;accent-color:#c4603a;margin-top:2px;cursor:pointer;">
-        <label for="shipSubscribe" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:rgba(26,20,16,0.45);cursor:pointer;line-height:1.6;">Occasional collector car shipping, import, and auction updates from The Daily Vroom</label>
+      <div class="sub-check">
+        <input type="checkbox" id="shipSubscribe" checked>
+        <label for="shipSubscribe">Occasional collector car shipping, import, and auction updates from The Daily Vroom</label>
       </div>
-      
     </div>
     <div class="confirm-wrap" id="confirmWrap" style="display:none">
       <div class="confirm-kicker">Booking Confirmed</div>
@@ -345,7 +448,7 @@ body{background:#f5f0e8;color:#1a1410;font-family:'DM Sans',sans-serif;font-weig
 
 <footer class="pgft">
   <p>&copy; TDV — thedailyvroom.com</p>
-  <p><a href="mailto:news@thedailyvroom.com" style="color:rgba(26,20,16,0.3);text-decoration:none;">Questions? news@thedailyvroom.com</a></p>
+  <p><a href="mailto:news@thedailyvroom.com">Questions? news@thedailyvroom.com</a></p>
 </footer>
 
 <script>
@@ -438,7 +541,7 @@ function updateModels(){
   const allMods=CAR_MODELS[make]||[];
   const filtered=year?allMods.filter(m=>year>=m[1]&&year<=m[2]):allMods;
   const mods=filtered.length>0?filtered:allMods;
-  mf.innerHTML='<label style="font-family:DM Mono,monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(26,20,16,0.45);">Model</label><select id="model" style="background:#ffffff;border:1px solid rgba(26,20,16,0.15);color:#1a1410;font-family:DM Sans,sans-serif;font-size:14px;font-weight:300;padding:10px 12px;outline:none;width:100%;-webkit-appearance:none;appearance:none;"><option value="">'+(make?(filtered.length>0?'Select ('+filtered.length+' match)':'Select model'):'Select make first')+'</option></select>';
+  mf.innerHTML='<label style="font-family:Archivo,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#55595E;">Model</label><select id="model" style="background:#ffffff;border:2px solid #111111;color:#111111;font-family:Inter,sans-serif;font-size:16px;font-weight:400;padding:11px 12px;min-height:44px;outline:none;width:100%;-webkit-appearance:none;appearance:none;"><option value="">'+(make?(filtered.length>0?'Select ('+filtered.length+' match)':'Select model'):'Select make first')+'</option></select>';
   if(make){const sel=document.getElementById('model');mods.forEach(m=>{const o=document.createElement('option');o.value=m[0];o.textContent=m[0];sel.appendChild(o);});}
 }
 
@@ -500,7 +603,7 @@ function renderResults(s){
   costRows.innerHTML='';
   [{label:'Door-to-Door Pickup',sub:'Carrier collects from your location'},{label:'Door-to-Door Delivery',sub:'Carrier delivers to your destination'},{label:'Basic Transit Insurance',sub:'Included with shipment'}].forEach(item=>{
     const row=document.createElement('div');row.className='crow';
-    row.innerHTML='<div class="clbl">'+item.label+'<span class="csub">'+item.sub+'</span></div><div class="cval" style="color:#3d7a5a">Included</div>';
+    row.innerHTML='<div class="clbl">'+item.label+'<span class="csub">'+item.sub+'</span></div><div class="cval" style="color:#1E7A45">Included</div>';
     costRows.appendChild(row);
   });
   document.getElementById('bookNotes').value='';
@@ -578,7 +681,7 @@ async function shareQuote(){
     conf.textContent='Could not generate link.';
     setTimeout(function(){conf.style.opacity='0';},3000);
   }
-}function copyShareLink(){var input=document.getElementById('shareLinkInput');var conf=document.getElementById('shareConfirm');input.select();try{navigator.clipboard.writeText(input.value).catch(()=>document.execCommand('copy'));}catch(e){document.execCommand('copy');}conf.style.opacity='1';setTimeout(()=>conf.style.opacity='0',2500);}
+}function copyShareLink(){var input=document.getElementById('shareLinkInput');var conf=document.getElementById('shareConfirm');input.select();try{navigator.clipboard.writeText(input.value).catch(()=>document.execCommand('copy'));}catch(e){document.execCommand('copy');}conf.textContent='Copied!';conf.style.opacity='1';setTimeout(()=>conf.style.opacity='0',2500);}
 function resetCalc(){
   document.getElementById('resultsPanel').style.display='none';
   document.getElementById('formPanel').style.display='block';
@@ -610,6 +713,6 @@ setInterval(notifyParentResize,300);
   }
 });
 </script>
-  <div style="text-align:center;padding:16px;font-size:11px;opacity:0.5;">Built by <a href="https://feridanis.com" target="_blank" style="color:inherit;">Feridanis</a></div>
+  <div class="built-by">Built by <a href="https://feridanis.com" target="_blank">Feridanis</a></div>
 </body>
 </html>
