@@ -1,5 +1,7 @@
 {
   "rewrites": [
+    { "source": "/index.html", "destination": "/index.html" },
+    { "source": "/shipping.html", "destination": "/shipping.html" },
     { "source": "/shipping", "destination": "/shipping.html" },
     { "source": "/shipping-calculator", "destination": "/shipping.html" },
     { "source": "/shipping-calculator/", "destination": "/shipping.html" },
