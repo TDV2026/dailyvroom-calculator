@@ -106,7 +106,7 @@ Use these exact rates. Do not use any other rates or figures.`;
               });
             }
           }
-        } catch { /* non-critical */ }
+        } catch (err) { console.error('Supabase PATCH failed:', err.message); }
       }
       return res.status(200).json({ success: true });
     }
@@ -145,9 +145,15 @@ Use these exact rates. Do not use any other rates or figures.`;
           body: JSON.stringify(log),
         });
         const sbData = await sbRes.json();
-        const rowId = sbData[0]?.id;
-        if (rowId) data._supabase_row_id = rowId;
-      } catch { /* non-critical */ }
+        if (!sbRes.ok) {
+          data._supabase_error = { status: sbRes.status, body: sbData };
+        } else {
+          const rowId = sbData[0]?.id;
+          if (rowId) data._supabase_row_id = rowId;
+        }
+      } catch (err) {
+        data._supabase_error = { message: err.message };
+      }
     }
 
     return res.status(response.status).json(data);
