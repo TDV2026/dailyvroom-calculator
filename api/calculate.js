@@ -77,19 +77,13 @@ export default async function handler(req, res) {
       }
     } catch { /* use fallback */ }
 
-    // Live tariff data
-    let tariffs = null;
-    let tariffsDate = 'unknown';
-    try {
-      const tRes = await fetch(
-        'https://raw.githubusercontent.com/TDV2026/dailyvroom-calculator/main/rates.json',
-        { signal: AbortSignal.timeout(3000) }
-      );
-      if (tRes.ok) {
-        tariffs = await tRes.json();
-        tariffsDate = tariffs.updated || 'unknown';
-      }
-    } catch { /* use Claude's built-in knowledge */ }
+    // NO TARIFF TABLE IS INJECTED (F-35, Oct 21 2026). This used to fetch rates.json from raw.githubusercontent.com. That
+    // file is not at the root of main (only .migration-backup/rates.json, dated 2026-03-29), so the fetch has answered 404
+    // since the move and never worked on a private repo. The calculation has run on the duty rules, freight, port, final mile and
+    // insurance figures carried in the page's own prompt (index.html, the 2026 rules: the 25-year exemption, the UK 10%
+    // and EU/Japan 15% trade-deal rates). The backup file CONTRADICTS those rules (27.5% on every origin, Section 232 on
+    // 25-year cars) and the injected block says "use these exact rates", so bundling it would have made the answers
+    // wrong. The page's prompt stays the one source; the exchange rates below are still live.
 
     const rateContext = `
 
@@ -105,31 +99,7 @@ Exchange rates as of ${ratesDate} (European Central Bank):
 1 CHF = ${rates.CHF} USD
 1 ZAR = ${rates.ZAR} USD
 
-${tariffs ? `Tariff rates as of ${tariffsDate}:
-US import duty (non-exempt): ${tariffs.import_duty.US.base * 100}% base + ${tariffs.import_duty.US.section_232 * 100}% Section 232 = ${tariffs.import_duty.US.total_non_exempt * 100}% total
-US 25-year rule: waives EPA/DOT only, Section 232 still applies
-UK duty from non-EU: ${tariffs.import_duty.UK.from_non_eu * 100}%
-UK duty from EU: ${tariffs.import_duty.UK.from_eu * 100}%
-EU duty from outside EU: ${tariffs.import_duty.DE.from_outside_eu * 100}%
-Australia duty: ${tariffs.import_duty.AU.base * 100}% + ${tariffs.import_duty.AU.gst * 100}% GST + ${tariffs.import_duty.AU.lct_rate * 100}% LCT above AUD ${tariffs.import_duty.AU.lct_threshold_aud.toLocaleString()}
-Canada duty from non-USMCA: ${tariffs.import_duty.CA.from_other * 100}%
-Japan duty: ${tariffs.import_duty.JP.base * 100}% + ${tariffs.import_duty.JP.consumption_tax * 100}% consumption tax
-UK VAT: ${tariffs.vat_and_sales_tax.UK.vat * 100}%
-Germany VAT: ${tariffs.vat_and_sales_tax.DE.vat * 100}%
-France VAT: ${tariffs.vat_and_sales_tax.FR.vat * 100}%
-Netherlands VAT: ${tariffs.vat_and_sales_tax.NL.vat * 100}%
-Australia GST: ${tariffs.vat_and_sales_tax.AU.gst * 100}%
-Canada GST: ${tariffs.vat_and_sales_tax.CA.gst * 100}%
-Japan consumption tax: ${tariffs.vat_and_sales_tax.JP.consumption_tax * 100}%
-RoRo freight UK/EU to US: $${tariffs.roro_freight_usd.UK_to_US.min}-${tariffs.roro_freight_usd.UK_to_US.max}
-RoRo freight Japan to US West Coast: $${tariffs.roro_freight_usd.JP_to_US_west.min}-${tariffs.roro_freight_usd.JP_to_US_west.max}
-RoRo freight Australia to US: $${tariffs.roro_freight_usd.AU_to_US.min}-${tariffs.roro_freight_usd.AU_to_US.max}
-Port and broker: $${tariffs.port_and_broker_usd.min}-${tariffs.port_and_broker_usd.max}
-Final mile: $${tariffs.final_mile_usd.min}-${tariffs.final_mile_usd.max}
-Marine insurance: ${tariffs.marine_insurance_rate * 100}% of vehicle value
-` : 'Tariff data unavailable - use your best knowledge of current rates.'}
-
-Use these exact rates. Do not use any other rates or figures.`;
+Use these exchange rates for every currency conversion.`;
 
     // The client's model, max_tokens and system are ignored (F-33): the server uses its own, the calculator's values.
     const { log, messages } = req.body || {};
