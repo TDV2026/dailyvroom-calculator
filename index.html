@@ -373,6 +373,7 @@ body{background:var(--paper);color:var(--text);font-family:'Inter',sans-serif;fo
         </div>
         <div class="sub-right">
           <input type="email" id="subEmail" class="sub-input" placeholder="your@email.com">
+          <input type="text" id="subWebsite" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
           <button class="sub-btn" onclick="subscribeEmail()">Subscribe Free</button>
           <div class="sub-confirm" id="subConfirm"></div>
         </div>
@@ -799,7 +800,7 @@ function subscribeEmail(){
   if(!email||!email.includes('@')){conf.textContent='Please enter a valid email.';conf.style.color='#B21E00';return;}
   conf.textContent='Subscribing...';
   conf.style.color='#55595E';
-  fetch(VERCEL_URL+'/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})})
+  fetch(VERCEL_URL+'/api/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,website:(document.getElementById('subWebsite')||{}).value||''})})
     .then(r=>r.json())
     .then(d=>{
       if(d.success){conf.textContent='You\'re in. Welcome to TDV.';conf.style.color='#1E7A45';document.getElementById('subEmail').value='';}
