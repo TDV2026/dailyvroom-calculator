@@ -36,6 +36,8 @@ ok(r.body && r.body._supabase_row_id === 42, "the calculation is still logged (r
 r = await call({ log: { row_id: 42, total_landed: 12345, delta_percent: 3 } }, ORIGIN);
 ok(r.code === 200 && anth().length === 0 && calls.some(c => c.method === "PATCH"), "the log-only update (result and intent) still works");
 r = await call(appBody(), { origin: "https://www.thedailyvroom.com" }); ok(r.code === 200, "www works");
+for (const o of ["https://calculator.thedailyvroom.com", "https://dailyvroom-calculator.vercel.app"]) { r = await call(appBody(), { origin: o }); ok(r.code === 200, `${o} works`); }
+r = await call(appBody(), { origin: "https://evilcalculator.thedailyvroom.com" }); ok(r.code === 403, "another subdomain is refused");
 r = await call(appBody(), { origin: "https://dailyvroom-calculator-abc123-tdv2026.vercel.app" }); ok(r.code === 200, "a Vercel preview of this project works");
 // 2. Abuse cases.
 r = await call(appBody(), { origin: "https://evil.test" }); ok(r.code === 403 && anth().length === 0, `a foreign origin is refused (${r.code})`);

@@ -6,7 +6,7 @@ const FALLBACK_RATES = {
 // GUARD (Oct 21 2026, F-33): this route used to forward the request's model, max_tokens, system and messages to
 // Anthropic with our key and no limit, so anyone could use it as a free general Claude endpoint. Now:
 //  - a kill switch: CALCULATE_OFF=1 in the environment answers 503 (needs a redeploy to take effect, see the notes);
-//  - an origin check: only the calculator's own pages (thedailyvroom.com and www, and this project's Vercel previews;
+//  - an origin check: only the calculator's own pages (DEFAULT_ORIGINS below, and this project's Vercel previews;
 //    ALLOWED_ORIGINS adds more, comma separated) may call it; a request with no Origin is refused;
 //  - the server fixes the model, max_tokens and the system prompt to exactly what the calculator page sends, and
 //    accepts exactly one user message of at most 24,000 characters (the page's prompt is about 15,400);
@@ -19,9 +19,11 @@ const MAX_PROMPT_CHARS = 24000;
 const MAX_BODY_CHARS = 40000;
 const LIMITS = [[60e3, 6], [3600e3, 40], [86400e3, 150]];   // per address: a minute, an hour, a day
 const hits = new Map();
+// The calculator's own pages (Sam, Oct 21 2026): its custom domain, its Vercel address and the two pages that embed it.
+const DEFAULT_ORIGINS = ['https://calculator.thedailyvroom.com', 'https://dailyvroom-calculator.vercel.app', 'https://thedailyvroom.com', 'https://www.thedailyvroom.com'];
 function allowedOrigin(origin) {
   const o = String(origin || '').toLowerCase();
-  if (o === 'https://thedailyvroom.com' || o === 'https://www.thedailyvroom.com') return true;
+  if (DEFAULT_ORIGINS.includes(o)) return true;
   if (/^https:\/\/dailyvroom-calculator(-[a-z0-9-]+)?\.vercel\.app$/.test(o)) return true;
   return String(process.env.ALLOWED_ORIGINS || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean).includes(o);
 }
