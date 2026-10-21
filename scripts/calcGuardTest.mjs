@@ -56,6 +56,7 @@ r = await call({ ...appBody(), log: { notes: "z".repeat(50000) } }, ORIGIN); ok(
 T.hits.clear(); let codes = [];
 for (let i = 0; i < 8; i++) { r = await call(appBody(), ORIGIN, false); codes.push(r.code); }
 ok(codes.slice(0, 6).every(c => c === 200) && codes[6] === 429 && codes[7] === 429, `6 a minute from one address, then 429 (${codes.join(",")})`);
+r = await call({ log: { row_id: 42, total_landed: 1 } }, ORIGIN, false); ok(r.code === 200, "a log-only update from the same address is not limited (it never reaches Claude)");
 // 4. The kill switch.
 process.env.CALCULATE_OFF = "1"; r = await call(appBody(), ORIGIN); ok(r.code === 503 && calls.length === 0, `CALCULATE_OFF=1 answers 503 and calls nothing (${r.code})`);
 r = await call({ log: { row_id: 42, total_landed: 1 } }, ORIGIN); ok(r.code === 503 && calls.length === 0, "the switch also stops the log updates");

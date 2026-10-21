@@ -10,14 +10,14 @@ const FALLBACK_RATES = {
 //    ALLOWED_ORIGINS adds more, comma separated) may call it; a request with no Origin is refused;
 //  - the server fixes the model, max_tokens and the system prompt to exactly what the calculator page sends, and
 //    accepts exactly one user message of at most 24,000 characters (the page's prompt is about 15,400);
-//  - a per-address limit held in this instance's memory (weak on serverless: each instance counts on its own; the
-//    durable limit is a Vercel Firewall rate-limit rule on /api/calculate).
+//  - a per-address limit on calculations (requests that reach Claude) held in this instance's memory (weak on
+//    serverless: each instance counts on its own; the durable limit is a Vercel Firewall rate-limit rule).
 const CALC_MODEL = 'claude-haiku-4-5';
 const CALC_MAX_TOKENS = 2500;
 const CALC_SYSTEM = 'You are a car import cost calculator. Return ONLY a valid JSON object. No markdown, no text before or after. Never use literal newlines inside JSON string values, use \\n instead.';
 const MAX_PROMPT_CHARS = 24000;
 const MAX_BODY_CHARS = 40000;
-const LIMITS = [[60e3, 6], [3600e3, 40], [86400e3, 150]];   // per address: a minute, an hour, a day
+const LIMITS = [[60e3, 6], [3600e3, 40], [86400e3, 150]];   // calculations per address: a minute, an hour, a day
 const hits = new Map();
 // The calculator's own pages (Sam, Oct 21 2026): its custom domain, its Vercel address and the two pages that embed it.
 const DEFAULT_ORIGINS = ['https://calculator.thedailyvroom.com', 'https://dailyvroom-calculator.vercel.app', 'https://thedailyvroom.com', 'https://www.thedailyvroom.com'];
@@ -53,7 +53,9 @@ export default async function handler(req, res) {
   let bodyChars = 0;
   try { bodyChars = JSON.stringify(req.body || {}).length; } catch { bodyChars = MAX_BODY_CHARS + 1; }
   if (bodyChars > MAX_BODY_CHARS) return res.status(413).json({ error: 'Request too large' });
-  if (overLimit(clientAddress(req))) {
+  // The limit counts only requests that reach Claude (the cost): the page's log-only updates (the result and the
+  // intent, and opening a share link) do not count, so a visitor pricing a few cars never meets it.
+  if (req.body && req.body.messages && overLimit(clientAddress(req))) {
     return res.status(429).json({ error: 'A lot of people are running numbers right now. Please try again in a minute.' });
   }
 
